@@ -1,0 +1,35 @@
+
+*{
+
+}
+
+.product-container{
+    width:25%;
+    max-width:25%;
+    display:inline-block;
+}
+
+img{
+    max-width:200px;
+}
+
+.Polaris-Tag{
+    margin-right:15px!important;
+}
+
+.tags{
+    margin-bottom:25px;
+}
+
+.active-tags{
+    margin-bottom:25px;
+}
+
+span{
+    margin-right:5px;
+}
+
+.product-vendor{
+    font-weight:700;
+    display:block;
+}
