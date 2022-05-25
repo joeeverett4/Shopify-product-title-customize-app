@@ -32,6 +32,18 @@ export function ProductsCard() {
   async function updateProductCount() {
     const { count } = await fetch("/products-count").then((res) => res.json());
     setProductCount(count);
+         const productDetails = {
+        test: "hello",
+      };
+      const response = await fetch("/mongo", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(productDetails)
+      });
+
   }
 
   useEffect(() => {

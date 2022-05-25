@@ -3,9 +3,11 @@ import { resolve } from "path";
 import express from "express";
 import cookieParser from "cookie-parser";
 import { Shopify, ApiVersion } from "@shopify/shopify-api";
+import { Metafield } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
 import "dotenv/config";
 import applyAuthMiddleware from "./middleware/auth.js";
 import verifyRequest from "./middleware/verify-request.js";
+import Shop from "../server/models/Shop.js";
 import connectDB from "../config/db.js";
 const USE_ONLINE_TOKENS = true;
 const TOP_LEVEL_OAUTH_COOKIE = "shopify_top_level_oauth";
@@ -30,7 +32,7 @@ const ACTIVE_SHOPIFY_SHOPS = {};
 Shopify.Webhooks.Registry.addHandler("APP_UNINSTALLED", {
   path: "/webhooks",
   webhookHandler: async (topic, shop, body) => {
-    delete ACTIVE_SHOPIFY_SHOPS[shop]
+    delete ACTIVE_SHOPIFY_SHOPS[shop];
   },
 });
 
@@ -70,6 +72,16 @@ export async function createServer(
     res.status(200).send(countData);
   });
 
+  app.get("/get-products", verifyRequest(app), async (req, res) => {
+    const session = await Shopify.Utils.loadCurrentSession(req, res, true);
+    const { shop: shopOrigin, accessToken } = session;
+    console.log("get-products");
+    const shop = await Shop.findOne({
+      shopify_domain: shopOrigin,
+    });
+    res.status(200).send(shop);
+  });
+
   app.post("/graphql", verifyRequest(app), async (req, res) => {
     try {
       const response = await Shopify.Utils.graphqlProxy(req, res);
@@ -80,6 +92,65 @@ export async function createServer(
   });
 
   app.use(express.json());
+
+  app.post("/deletemeta", async (req, res) => {
+    try {
+      let metafieldsToDelete = req.body;
+      const session = await Shopify.Utils.loadCurrentSession(req, res, true);
+      await Promise.all(
+        metafieldsToDelete.map(async (meta, i) => {
+          let productMetas = await Metafield.all({
+            session: session,
+          });
+          console.log("this is metabas" + JSON.stringify(productMetas[i].id));
+          /* console.log("thisw iss  " + JSON.stringify(productMetas[0].value))
+     console.log("this is   " + JSON.stringify(productMetas[0].id)) */
+
+          let isDelete = await Metafield.delete({
+            session: session,
+            id: productMetas[i].id,
+          });
+
+          console.log("is deleted" + JSON.stringify(isDelete));
+        })
+      );
+      res.status(200).send(req.body);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
+
+  app.post("/mongo", async (req, res) => {
+    const msg = JSON.stringify(req.body);
+    console.log("this is mosngo");
+    const session = await Shopify.Utils.loadCurrentSession(req, res, true);
+    const { shop: shopOrigin, accessToken } = session;
+
+    await Shop.findOneAndUpdate(
+      { shopify_domain: shopOrigin },
+      { products: req.body }
+    );
+
+    let potentialProducts = req.body;
+    let hello;
+    potentialProducts.map(async (msgs, i) => {
+      let image = msgs.images[0].originalSrc;
+      let title = msgs.title;
+      let vendor = msgs.vendor;
+      let finalStr = image.concat(title,vendor)
+      let newStr = `${image},${title},${vendor}`
+
+      console.log("this is new str    " + newStr)
+
+      const metafield = new Metafield({ session: session });
+      metafield.namespace = "inventer";
+      metafield.key = `text_field${i}`;
+      metafield.type = "single_line_text_field";
+      // metafield.product_id = Number(msgs.id.split("/").pop());
+      metafield.value = newStr;
+      await metafield.save({});
+    });
+  });
 
   app.use((req, res, next) => {
     const shop = req.query.shop;

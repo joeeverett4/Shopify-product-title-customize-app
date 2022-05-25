@@ -13,6 +13,9 @@ const Shop = mongoose.Schema({
     type: String,
     default: null,
   },
+  products: {
+    type: [Object],
+  },
   overLimit: {
     type: Boolean,
     default: false,
@@ -54,4 +57,4 @@ const Shop = mongoose.Schema({
   },
 }, { timestamps: true });
 
-export default mongoose.model('Shop', Shop);
+export default  mongoose.models.Shop || mongoose.model('Shop', Shop);

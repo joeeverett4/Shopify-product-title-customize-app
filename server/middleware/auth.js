@@ -9,7 +9,7 @@ export default function applyAuthMiddleware(app) {
       return res.redirect(`/auth/toplevel?shop=${req.query.shop}`);
     }
 
-   console.log("auth")
+   
 
     const redirectUrl = await Shopify.Auth.beginAuth(
       req,
@@ -60,7 +60,7 @@ export default function applyAuthMiddleware(app) {
         }`,
       });
       const dataJson = JSON.stringify(data)
-      console.log("this is product" + dataJson)
+      
 
    const { shop: shopOrigin, accessToken } = session
    
@@ -77,18 +77,23 @@ export default function applyAuthMiddleware(app) {
 
     const strJsonData = jsonData.shop
 
-    console.log("this is jsondata" + strJsonData)
+    
 
+   const checkShop =  await Shop.findOne({
+    shopify_domain : shopOrigin
+    }) 
+   
+    if(!checkShop){
     const shop = new Shop({
       shopify_domain: shopOrigin,
       accessToken,
       isActive: false,
       strJsonData
-    });
-   
+    })
+  
     const savedShop = await shop.save();
-
-    console.log(savedShop)
+  }
+    
 
       const host = req.query.host;
       app.set(

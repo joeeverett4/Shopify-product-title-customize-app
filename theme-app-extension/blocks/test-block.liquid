@@ -1,0 +1,80 @@
+<h1>Helo wold</h1>
+<button id = "btn">Button</button>
+{% assign reviews = block.settings.product.metafields.prapp-pub-reviews %}
+{% for key_value in reviews %}
+          {% assign review = key_value[1] %}
+          {{review}}
+          {% endfor %}
+
+<script>
+window.onload=function(){
+var content = {{ shop.metafields.inventer }};
+
+console.log("this is con" + JSON.stringify(content))
+}
+
+</script>
+
+{% schema %}
+{
+  "name": "t:blocks.product-reviews.name",
+  "templates": ["product"],
+  "target": "section",
+  "settings": [
+    {
+      "type": "color",
+      "id": "stars_fill_color",
+      "label": "t:blocks.product-reviews.settings.stars_fill_color.label",
+      "default": "#000000"
+    },
+    {
+      "type": "number",
+      "id": "star_size",
+      "label": "t:blocks.product-reviews.settings.star_size.label",
+      "default": 24
+    },
+    {
+      "type": "number",
+      "id": "padding_x",
+      "label": "t:blocks.product-reviews.settings.padding_x.label",
+      "default": 50
+    },
+    {
+      "type": "number",
+      "id": "padding_y",
+      "label": "t:blocks.product-reviews.settings.padding_y.label",
+      "default": 0
+    },
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "t:blocks.product-reviews.settings.heading.label",
+      "default": "Customer Reviews"
+    },
+	  {
+      "id": "no_reviews_action_text",
+      "type": "text",
+      "label": "t:blocks.product-reviews.settings.no_reviews_action_text.label",
+      "default": "Be the first to review this product."
+    },
+	  {
+      "id": "existing_reviews_action_text",
+      "type": "text",
+      "label": "t:blocks.product-reviews.settings.existing_reviews_action_text.label",
+      "default": "Write Review"
+    },
+    {
+      "id": "allow_unverified_reviews",
+      "type": "checkbox",
+      "label": "t:blocks.product-reviews.settings.allow_unverified_reviews.label",
+      "default": false
+    },
+    {
+      "id": "product",
+      "type": "product",
+      "label": "t:blocks.product-reviews.settings.product.label",
+      "autofill": true
+    }
+  ]
+}
+{% endschema %}

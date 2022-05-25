@@ -16,6 +16,7 @@ import "@shopify/polaris/build/esm/styles.css";
 
 import { HomePage } from "./components/HomePage";
 import { ProductRow } from "./components/ProductRow"
+import { Campaign } from "./components/Campaign"
 
 export default function App() {
   return (
@@ -28,7 +29,7 @@ export default function App() {
         }}
       >
         <MyProvider>
-          <ProductRow />
+          <Campaign />
         </MyProvider>
       </AppBridgeProvider>
     </PolarisProvider>
