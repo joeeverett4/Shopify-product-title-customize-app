@@ -102,7 +102,7 @@ export async function createServer(
           let productMetas = await Metafield.all({
             session: session,
           });
-          console.log("this is metabas" + JSON.stringify(productMetas[i].id));
+         
           /* console.log("thisw iss  " + JSON.stringify(productMetas[0].value))
      console.log("this is   " + JSON.stringify(productMetas[0].id)) */
 
@@ -122,7 +122,7 @@ export async function createServer(
 
   app.post("/mongo", async (req, res) => {
     const msg = JSON.stringify(req.body);
-    console.log("this is mosngo");
+    
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
     const { shop: shopOrigin, accessToken } = session;
 
@@ -132,15 +132,19 @@ export async function createServer(
     );
 
     let potentialProducts = req.body;
+    
     let hello;
     potentialProducts.map(async (msgs, i) => {
+      
       let image = msgs.images[0].originalSrc;
       let title = msgs.title;
       let vendor = msgs.vendor;
+      let newTitle = msgs.newTitle;
+      let colNumber = potentialProducts.length;
       let finalStr = image.concat(title,vendor)
-      let newStr = `${image},${title},${vendor}`
+      let newStr = `${image},${title},${vendor},${newTitle},${colNumber}`
 
-      console.log("this is new str    " + newStr)
+           
 
       const metafield = new Metafield({ session: session });
       metafield.namespace = "inventer";

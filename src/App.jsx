@@ -17,6 +17,7 @@ import "@shopify/polaris/build/esm/styles.css";
 import { HomePage } from "./components/HomePage";
 import { ProductRow } from "./components/ProductRow"
 import { Campaign } from "./components/Campaign"
+import { Newcampaign } from "./components/Newcampaign";
 
 export default function App() {
   return (

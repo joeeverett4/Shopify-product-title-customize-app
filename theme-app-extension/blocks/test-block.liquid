@@ -1,24 +1,29 @@
-<h1>Helo wold</h1>
-<button id = "btn">Button</button>
-{% assign reviews = block.settings.product.metafields.prapp-pub-reviews %}
-{% for key_value in reviews %}
-          {% assign review = key_value[1] %}
-          {{review}}
-          {% endfor %}
+{{ 'style.css' | asset_url | stylesheet_tag }}
 
-<script>
-window.onload=function(){
-var content = {{ shop.metafields.inventer }};
-
-console.log("this is con" + JSON.stringify(content))
-}
-
-</script>
+<div style = "display:flex;justify-content:space-around;">
+  {% for field in shop.metafields.inventer %}
+       
+       {% assign title = field | last | split: "," %}
+       {% assign col = title[4] %}
+       <div style = "display:flex;flex-direction:column;" class = "grid-item-{{col}}"> 
+       <img src = "{{title[0]}}" width = "600" height = "400" style = "width:100%;height:200px;" />
+        <h3 style = "margin-block-end:0px;font-weight:700;">{{title[2]}}</h3>
+  <h3>{{title[3]}}</h3>
+  <h3>{{title[4]}}</h3>
+  </div>  
+       {% comment %}  {% for t in title %}
+        <h1>{{t}}</h1> <p>break<p>
+         {% endfor %}
+        {% endcomment %}
+    
+       
+{% endfor %}
+  </div>
 
 {% schema %}
 {
   "name": "t:blocks.product-reviews.name",
-  "templates": ["product"],
+  "templates": ["index"],
   "target": "section",
   "settings": [
     {

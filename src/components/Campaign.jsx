@@ -19,33 +19,31 @@ export function Campaign() {
   }, []);
 
   const onSelection = async ({ selection = [] }) => {
-    /**
-     * `selection` is always an array.
-     * We have `selectMultiple: false`, so we know we can just grab
-     * the item at index 0, since there is only 1 item.
-     *
-     */
+    let val = document.querySelectorAll(".product-title");
+    let i = 0;
+    let obj = []
+    let newObj = {}
     
-   // console.log("this is selection  " + JSON.stringify(selection));
+    
 
-   let val = document.querySelectorAll(".product-title")
-   let i = 0;
-
-   console.log(val)
-
-  /*
     for (const element of selection) {
-     const newObj = {
-       newTitle : val[i].innerText
-     }
-     i++
-     const res = Object.assign(element,newObj)
-     console.log(res)
-  }
-
-  */
-
-    
+      if(val.length != 0 && val[i] != undefined){
+        
+       newObj = {
+        newTitle: val[i].innerText,
+      };
+    }
+    else{
+       newObj = {
+        newTitle: "",
+      };
+    }
+      i++;
+      const res = Object.assign(element, newObj);
+      obj.push(res)
+      
+    }
+   
 
     const sendValues = productList;
 
@@ -68,23 +66,18 @@ export function Campaign() {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(selection),
+      body: JSON.stringify(obj),
     });
- 
-    
-
   };
 
   const setIsPickerOpen = () => {
     setPickerOpen(true);
   };
 
-  const onCancel = () => {
-    setPickerOpen(false);
-    console.log("onCancel")
-  }
-
   const removeTag = (typeOfTag) => {
+
+  console.log("this is tis  " + this)
+
     let arr = newTitles;
 
     let newActiveTags = arr.filter((type) => type !== typeOfTag);
@@ -100,13 +93,26 @@ export function Campaign() {
     setNewTitles(currentTags);
   };
 
+  function getOccurrence(array, value) {
+    var count = 0;
+    array.forEach((v) => (v === value && count++));
+    return count;
+}
+
   const chooseType = (type, product) => {
+    
+
     if (type == "vendor") {
-      return <>{product.vendor}</>;
+      
+      return <>{product.vendor + " "}</>;
     }
     if (type == "type") {
-      return <>{product.productType}</>;
+      return <>{product.productType + " "}</>;
     }
+    if (type == "variant") {
+      return <>{product.variants[0].title + " "}</>;
+    }
+
     if (type == "tags") {
       return product.tags.map((tag) => {
         if (tag.includes("app_") == true) {
@@ -118,9 +124,11 @@ export function Campaign() {
   };
 
   const renderActiveTag = (tag) => {
-    console.log("renderaC");
+    
+    console.log(newTitles)
+
     if (tag == "vendor") {
-      return <Tag onRemove={() => removeTag("vendor")}>Product Vendo</Tag>;
+      return <Tag onRemove={() => removeTag("vendor")}>Product Vendor</Tag>;
     }
     if (tag == "type") {
       return <Tag onRemove={() => removeTag("type")}>Product Type</Tag>;
@@ -128,6 +136,10 @@ export function Campaign() {
     if (tag == "tags") {
       return <Tag onRemove={() => removeTag("tags")}>Product Tag</Tag>;
     }
+    if (tag == "variant") {
+      return <Tag onRemove={() => removeTag("variant")}>Product Variant</Tag>;
+    }
+
   };
 
   return (
@@ -142,6 +154,7 @@ export function Campaign() {
         <Tag onClick={() => addTag("vendor")}>Product Vendor</Tag>
         <Tag onClick={() => addTag("type")}>Product Type</Tag>
         <Tag onClick={() => addTag("tags")}>Product Tag</Tag>
+        <Tag onClick={() => addTag("variant")}>Product Variant</Tag>
       </div>
 
       <div className="active-tags">
@@ -154,16 +167,19 @@ export function Campaign() {
         selectMultiple={true}
         open={isPickerOpen}
         onSelection={onSelection}
-        onCancel={onCancel}
         actionVerb="select"
       />
       {productList.map((product, i) => (
+        
         <div className="product-container" key={i}>
           <img src={product?.images[0].originalSrc} />
           <p className="product-vendor">{product.vendor}</p>
-          <p className = "product-title">{newTitles &&
-            newTitles.map((type) => <>{chooseType(type, product)}</>)}</p>
+          <p className="product-title">
+            {newTitles &&
+              newTitles.map((type) => <>{chooseType(type, product)}</>)}
+          </p>
           <p>£ {product.variants[0].price}</p>
+        
         </div>
       ))}
     </Page>
