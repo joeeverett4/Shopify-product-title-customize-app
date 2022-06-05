@@ -3,6 +3,7 @@ import { Page, Tag } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { Toast, useAppBridge } from "@shopify/app-bridge-react";
 import { userLoggedInFetch } from "../App";
+import "../style.css";
 
 export function Campaign() {
   const [productList, updateproductList] = useState([]);
@@ -75,9 +76,6 @@ export function Campaign() {
   };
 
   const removeTag = (typeOfTag) => {
-
-  console.log("this is tis  " + this)
-
     let arr = newTitles;
 
     let newActiveTags = arr.filter((type) => type !== typeOfTag);
@@ -85,35 +83,41 @@ export function Campaign() {
     setNewTitles(newActiveTags);
   };
 
-  const addTag = (addTag) => {
+  const addTag = async (addTag) => {
     let currentTags = [...newTitles];
+    let val = await getOccurrence(currentTags,addTag)
     
-    currentTags.push(addTag);
+    let result = addTag.concat(val)
+    console.log(newTitles)
+    currentTags.push(result);
 
     setNewTitles(currentTags);
   };
 
   function getOccurrence(array, value) {
     var count = 0;
-    array.forEach((v) => (v === value && count++));
+    array.forEach((v) => (v.includes(value) && count++));
     return count;
 }
 
   const chooseType = (type, product) => {
     
+    let val = getOccurrence(newTitles, type);
 
-    if (type == "vendor") {
-      
+    
+
+    if (type.includes("vendor")) {
+     
       return <>{product.vendor + " "}</>;
     }
-    if (type == "type") {
+    if (type.includes("type")) {
       return <>{product.productType + " "}</>;
     }
-    if (type == "variant") {
+    if (type.includes("variant")) {
       return <>{product.variants[0].title + " "}</>;
     }
 
-    if (type == "tags") {
+    if (type.includes("tags")) {
       return product.tags.map((tag) => {
         if (tag.includes("app_") == true) {
           tag = tag.split("app_");
@@ -125,19 +129,17 @@ export function Campaign() {
 
   const renderActiveTag = (tag) => {
     
-    console.log(newTitles)
-
-    if (tag == "vendor") {
-      return <Tag onRemove={() => removeTag("vendor")}>Product Vendor</Tag>;
+    if (tag.includes("vendor")) {
+      return <Tag onRemove={() => removeTag(tag)}>Product Vendor</Tag>;
     }
-    if (tag == "type") {
-      return <Tag onRemove={() => removeTag("type")}>Product Type</Tag>;
+    if (tag.includes("type")) {
+      return <Tag onRemove={() => removeTag(tag)}>Product Type</Tag>;
     }
-    if (tag == "tags") {
-      return <Tag onRemove={() => removeTag("tags")}>Product Tag</Tag>;
+    if (tag.includes("tags")) {
+      return <Tag onRemove={() => removeTag(tag)}>Product Tag</Tag>;
     }
-    if (tag == "variant") {
-      return <Tag onRemove={() => removeTag("variant")}>Product Variant</Tag>;
+    if (tag.includes("variant")) {
+      return <Tag onRemove={() => removeTag(tag)}>Product Variant</Tag>;
     }
 
   };
@@ -158,7 +160,7 @@ export function Campaign() {
       </div>
 
       <div className="active-tags">
-        {newTitles.map((activetag) => renderActiveTag(activetag))}
+        {newTitles.map((activetag,i) => renderActiveTag(activetag))}
       </div>
 
       <ResourcePicker
