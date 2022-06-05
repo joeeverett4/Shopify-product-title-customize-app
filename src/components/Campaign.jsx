@@ -3,12 +3,15 @@ import { Page, Tag } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { Toast, useAppBridge } from "@shopify/app-bridge-react";
 import { userLoggedInFetch } from "../App";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "../style.css";
+import Sortlist from "./Sortlist";
 
 export function Campaign() {
   const [productList, updateproductList] = useState([]);
   const [isPickerOpen, setPickerOpen] = useState(false);
   const [newTitles, setNewTitles] = useState(["type"]);
+  const [testTitles, setTitles] = useState([]);
 
   const app = useAppBridge();
   const fetch = userLoggedInFetch(app);
@@ -16,35 +19,30 @@ export function Campaign() {
   useEffect(async () => {
     const resp = await fetch("/get-products").then((res) => res.json());
     const products = resp.products;
+    console.log("useEffect check neewTitles  " + typeof testTitles);
     updateproductList(products);
   }, []);
 
   const onSelection = async ({ selection = [] }) => {
     let val = document.querySelectorAll(".product-title");
     let i = 0;
-    let obj = []
-    let newObj = {}
-    
-    
+    let obj = [];
+    let newObj = {};
 
     for (const element of selection) {
-      if(val.length != 0 && val[i] != undefined){
-        
-       newObj = {
-        newTitle: val[i].innerText,
-      };
-    }
-    else{
-       newObj = {
-        newTitle: "",
-      };
-    }
+      if (val.length != 0 && val[i] != undefined) {
+        newObj = {
+          newTitle: val[i].innerText,
+        };
+      } else {
+        newObj = {
+          newTitle: "",
+        };
+      }
       i++;
       const res = Object.assign(element, newObj);
-      obj.push(res)
-      
+      obj.push(res);
     }
-   
 
     const sendValues = productList;
 
@@ -75,6 +73,10 @@ export function Campaign() {
     setPickerOpen(true);
   };
 
+  function updateTitlesFromChild(newValue) {
+    setNewTitles(newValue);
+  }
+
   const removeTag = (typeOfTag) => {
     let arr = newTitles;
 
@@ -83,31 +85,27 @@ export function Campaign() {
     setNewTitles(newActiveTags);
   };
 
-  const addTag = async (addTag) => {
+  const addTag = (addTag) => {
     let currentTags = [...newTitles];
-    let val = await getOccurrence(currentTags,addTag)
-    
-    let result = addTag.concat(val)
-    console.log(newTitles)
-    currentTags.push(result);
+    let val = getOccurrence(currentTags, addTag);
 
+    let result = addTag.concat(val);
+
+    currentTags.push(result);
+    console.log("this is testTitles " + testTitles);
     setNewTitles(currentTags);
   };
 
   function getOccurrence(array, value) {
     var count = 0;
-    array.forEach((v) => (v.includes(value) && count++));
+    array.forEach((v) => v.includes(value) && count++);
     return count;
-}
+  }
 
   const chooseType = (type, product) => {
-    
     let val = getOccurrence(newTitles, type);
 
-    
-
     if (type.includes("vendor")) {
-     
       return <>{product.vendor + " "}</>;
     }
     if (type.includes("type")) {
@@ -128,7 +126,7 @@ export function Campaign() {
   };
 
   const renderActiveTag = (tag) => {
-    
+    console.log("renderActive")
     if (tag.includes("vendor")) {
       return <Tag onRemove={() => removeTag(tag)}>Product Vendor</Tag>;
     }
@@ -141,7 +139,6 @@ export function Campaign() {
     if (tag.includes("variant")) {
       return <Tag onRemove={() => removeTag(tag)}>Product Variant</Tag>;
     }
-
   };
 
   return (
@@ -158,11 +155,12 @@ export function Campaign() {
         <Tag onClick={() => addTag("tags")}>Product Tag</Tag>
         <Tag onClick={() => addTag("variant")}>Product Variant</Tag>
       </div>
-
+  {/* 
       <div className="active-tags">
-        {newTitles.map((activetag,i) => renderActiveTag(activetag))}
+        {newTitles.map((activetag, i) => renderActiveTag(activetag))}
       </div>
-
+  */}
+  <Sortlist titles={newTitles} updateTitles={updateTitlesFromChild} renderActiveTag = {renderActiveTag} removeTag = {removeTag} />
       <ResourcePicker
         resourceType="Product"
         showVariants={false}
@@ -172,7 +170,6 @@ export function Campaign() {
         actionVerb="select"
       />
       {productList.map((product, i) => (
-        
         <div className="product-container" key={i}>
           <img src={product?.images[0].originalSrc} />
           <p className="product-vendor">{product.vendor}</p>
@@ -181,9 +178,9 @@ export function Campaign() {
               newTitles.map((type) => <>{chooseType(type, product)}</>)}
           </p>
           <p>£ {product.variants[0].price}</p>
-        
         </div>
       ))}
+      
     </Page>
   );
 }
