@@ -63,6 +63,7 @@ export async function createServer(
   });
 
   app.get("/products-count", verifyRequest(app), async (req, res) => {
+    
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
     const { Product } = await import(
       `@shopify/shopify-api/dist/rest-resources/${Shopify.Context.API_VERSION}/index.js`
@@ -73,6 +74,7 @@ export async function createServer(
   });
 
   app.get("/get-products", verifyRequest(app), async (req, res) => {
+    console.log("this is products-count  " + req.body)
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
     const { shop: shopOrigin, accessToken } = session;
     console.log("get-products");
@@ -102,7 +104,7 @@ export async function createServer(
           let productMetas = await Metafield.all({
             session: session,
           });
-         
+
           /* console.log("thisw iss  " + JSON.stringify(productMetas[0].value))
      console.log("this is   " + JSON.stringify(productMetas[0].id)) */
 
@@ -122,7 +124,7 @@ export async function createServer(
 
   app.post("/mongo", async (req, res) => {
     const msg = JSON.stringify(req.body);
-    
+
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
     const { shop: shopOrigin, accessToken } = session;
 
@@ -132,19 +134,16 @@ export async function createServer(
     );
 
     let potentialProducts = req.body;
-    
+
     let hello;
     potentialProducts.map(async (msgs, i) => {
-      
       let image = msgs.images[0].originalSrc;
       let title = msgs.title;
       let vendor = msgs.vendor;
       let newTitle = msgs.newTitle;
       let colNumber = potentialProducts.length;
-      let finalStr = image.concat(title,vendor)
-      let newStr = `${image},${title},${vendor},${newTitle},${colNumber}`
-
-           
+      let finalStr = image.concat(title, vendor);
+      let newStr = `${image},${title},${vendor},${newTitle},${colNumber}`;
 
       const metafield = new Metafield({ session: session });
       metafield.namespace = "inventer";

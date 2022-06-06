@@ -3,15 +3,14 @@ import { Page, Tag } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { Toast, useAppBridge } from "@shopify/app-bridge-react";
 import { userLoggedInFetch } from "../App";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "../style.css";
 import Sortlist from "./Sortlist";
+import Productlist from "./Productlist";
 
 export function Campaign() {
   const [productList, updateproductList] = useState([]);
   const [isPickerOpen, setPickerOpen] = useState(false);
   const [newTitles, setNewTitles] = useState(["type"]);
-  const [testTitles, setTitles] = useState([]);
 
   const app = useAppBridge();
   const fetch = userLoggedInFetch(app);
@@ -19,62 +18,21 @@ export function Campaign() {
   useEffect(async () => {
     const resp = await fetch("/get-products").then((res) => res.json());
     const products = resp.products;
-    console.log("useEffect check neewTitles  " + typeof testTitles);
+
     updateproductList(products);
   }, []);
 
-  const onSelection = async ({ selection = [] }) => {
-    let val = document.querySelectorAll(".product-title");
-    let i = 0;
-    let obj = [];
-    let newObj = {};
-
-    for (const element of selection) {
-      if (val.length != 0 && val[i] != undefined) {
-        newObj = {
-          newTitle: val[i].innerText,
-        };
-      } else {
-        newObj = {
-          newTitle: "",
-        };
-      }
-      i++;
-      const res = Object.assign(element, newObj);
-      obj.push(res);
-    }
-
-    const sendValues = productList;
-
-    updateproductList(selection);
-
-    setPickerOpen(false);
-
-    const res = await fetch("/deletemeta", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(sendValues),
-    });
-
-    const response = await fetch("/mongo", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(obj),
-    });
-  };
-
-  const setIsPickerOpen = () => {
-    setPickerOpen(true);
+  const setIsPickerOpen = (val) => {
+    setPickerOpen(val);
   };
 
   function updateTitlesFromChild(newValue) {
     setNewTitles(newValue);
+  }
+
+  function updateProductsFromChild(newProducts) {
+    console.log("this is updating products");
+    updateproductList(newProducts);
   }
 
   const removeTag = (typeOfTag) => {
@@ -85,6 +43,12 @@ export function Campaign() {
     setNewTitles(newActiveTags);
   };
 
+  function getOccurrence(array, value) {
+    var count = 0;
+    array.forEach((v) => v.includes(value) && count++);
+    return count;
+  }
+
   const addTag = (addTag) => {
     let currentTags = [...newTitles];
     let val = getOccurrence(currentTags, addTag);
@@ -92,41 +56,12 @@ export function Campaign() {
     let result = addTag.concat(val);
 
     currentTags.push(result);
-    console.log("this is testTitles " + testTitles);
+
     setNewTitles(currentTags);
   };
 
-  function getOccurrence(array, value) {
-    var count = 0;
-    array.forEach((v) => v.includes(value) && count++);
-    return count;
-  }
-
-  const chooseType = (type, product) => {
-    let val = getOccurrence(newTitles, type);
-
-    if (type.includes("vendor")) {
-      return <>{product.vendor + " "}</>;
-    }
-    if (type.includes("type")) {
-      return <>{product.productType + " "}</>;
-    }
-    if (type.includes("variant")) {
-      return <>{product.variants[0].title + " "}</>;
-    }
-
-    if (type.includes("tags")) {
-      return product.tags.map((tag) => {
-        if (tag.includes("app_") == true) {
-          tag = tag.split("app_");
-          return tag;
-        }
-      });
-    }
-  };
-
   const renderActiveTag = (tag) => {
-    console.log("renderActive")
+    console.log("renderActive");
     if (tag.includes("vendor")) {
       return <Tag onRemove={() => removeTag(tag)}>Product Vendor</Tag>;
     }
@@ -146,7 +81,7 @@ export function Campaign() {
       title="Build your Product title"
       primaryAction={{
         content: "Choose products",
-        onAction: () => setIsPickerOpen(),
+        onAction: () => setIsPickerOpen(true),
       }}
     >
       <div className="tags">
@@ -155,12 +90,25 @@ export function Campaign() {
         <Tag onClick={() => addTag("tags")}>Product Tag</Tag>
         <Tag onClick={() => addTag("variant")}>Product Variant</Tag>
       </div>
-  {/* 
+      {/* 
       <div className="active-tags">
         {newTitles.map((activetag, i) => renderActiveTag(activetag))}
       </div>
   */}
-  <Sortlist titles={newTitles} updateTitles={updateTitlesFromChild} renderActiveTag = {renderActiveTag} removeTag = {removeTag} />
+      <Sortlist
+        titles={newTitles}
+        updateTitles={updateTitlesFromChild}
+        renderActiveTag={renderActiveTag}
+        removeTag={removeTag}
+      />
+      <Productlist
+        products={productList}
+        titles={newTitles}
+        updateProducts={updateProductsFromChild}
+        setPicker={setIsPickerOpen}
+        pickerStatus={isPickerOpen}
+      />
+      {/*
       <ResourcePicker
         resourceType="Product"
         showVariants={false}
@@ -180,7 +128,7 @@ export function Campaign() {
           <p>£ {product.variants[0].price}</p>
         </div>
       ))}
-      
+            */}
     </Page>
   );
 }
