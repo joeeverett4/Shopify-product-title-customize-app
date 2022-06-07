@@ -6,11 +6,14 @@ import { userLoggedInFetch } from "../App";
 import "../style.css";
 import Sortlist from "./Sortlist";
 import Productlist from "./Productlist";
+import Modal from "./Modal";
 
 export function Campaign() {
   const [productList, updateproductList] = useState([]);
   const [isPickerOpen, setPickerOpen] = useState(false);
   const [newTitles, setNewTitles] = useState(["type"]);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [customMsg, setCustomMsg] = useState("")
 
   const app = useAppBridge();
   const fetch = userLoggedInFetch(app);
@@ -25,6 +28,16 @@ export function Campaign() {
   const setIsPickerOpen = (val) => {
     setPickerOpen(val);
   };
+
+  const passModalToChild = () => {
+    console.log("pass to Modal to child" )
+    setModalOpen(false)
+  }
+
+  const passMsgToChild = (msg) => {
+    console.log("pass msg to child  " + customMsg)
+    setCustomMsg(msg)
+  }
 
   function updateTitlesFromChild(newValue) {
     setNewTitles(newValue);
@@ -74,6 +87,10 @@ export function Campaign() {
     if (tag.includes("variant")) {
       return <Tag onRemove={() => removeTag(tag)}>Product Variant</Tag>;
     }
+    if (tag.includes("message")) {
+      console.log("msggg")
+     // setModalOpen(true)
+    }
   };
 
   return (
@@ -89,7 +106,9 @@ export function Campaign() {
         <Tag onClick={() => addTag("type")}>Product Type</Tag>
         <Tag onClick={() => addTag("tags")}>Product Tag</Tag>
         <Tag onClick={() => addTag("variant")}>Product Variant</Tag>
+        <Tag onClick={() => setModalOpen(true)}>Custom Message</Tag>
       </div>
+      <Modal open = {isModalOpen} closeModal = {passModalToChild} setMsg = {passMsgToChild} />
       {/* 
       <div className="active-tags">
         {newTitles.map((activetag, i) => renderActiveTag(activetag))}
