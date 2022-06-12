@@ -4,7 +4,7 @@ import { Toast, useAppBridge } from "@shopify/app-bridge-react";
 import { userLoggedInFetch } from "../App";
 import "../style.css";
 
-export default function Productlist({ products, titles, updateProducts, setPicker, pickerStatus }) {
+export default function Productlist({ products, titles, updateProducts, setPicker, pickerStatus, custommsg }) {
   
   const app = useAppBridge();
   const fetch = userLoggedInFetch(app);
@@ -15,14 +15,19 @@ export default function Productlist({ products, titles, updateProducts, setPicke
     let obj = [];
     let newObj = {};
 
+    console.log("this is props msg " + custommsg)
+
     for (const element of selection) {
+        
       if (val.length != 0 && val[i] != undefined) {
         newObj = {
           newTitle: val[i].innerText,
+          message: custommsg,
         };
       } else {
         newObj = {
           newTitle: "",
+          message:"",
         };
       }
       i++;
@@ -79,6 +84,9 @@ export default function Productlist({ products, titles, updateProducts, setPicke
         }
       });
     }
+    if (type.includes("message")) {
+        return <>{custommsg + " "}</>;
+      }
   };
 
   return (

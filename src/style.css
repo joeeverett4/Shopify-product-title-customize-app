@@ -66,3 +66,7 @@ span{
     font-size: 18px;
     box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1);
   }
+
+  .welcome--title{
+    margin-bottom:25px;  
+  }

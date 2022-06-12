@@ -4,11 +4,16 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import { Shopify, ApiVersion } from "@shopify/shopify-api";
 import { Metafield } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
+import { Theme } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
+import { Asset } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
+import { ScriptTag } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
 import "dotenv/config";
 import applyAuthMiddleware from "./middleware/auth.js";
 import verifyRequest from "./middleware/verify-request.js";
 import Shop from "../server/models/Shop.js";
 import connectDB from "../config/db.js";
+import { Console } from "console";
+import { liq } from "../src/assets/snippet.js"
 const USE_ONLINE_TOKENS = true;
 const TOP_LEVEL_OAUTH_COOKIE = "shopify_top_level_oauth";
 
@@ -63,7 +68,6 @@ export async function createServer(
   });
 
   app.get("/products-count", verifyRequest(app), async (req, res) => {
-    
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
     const { Product } = await import(
       `@shopify/shopify-api/dist/rest-resources/${Shopify.Context.API_VERSION}/index.js`
@@ -74,7 +78,7 @@ export async function createServer(
   });
 
   app.get("/get-products", verifyRequest(app), async (req, res) => {
-    console.log("this is products-count  " + req.body)
+    console.log("this is products-count  " + req.body);
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
     const { shop: shopOrigin, accessToken } = session;
     console.log("get-products");
@@ -137,13 +141,15 @@ export async function createServer(
 
     let hello;
     potentialProducts.map(async (msgs, i) => {
+      console.log("this is mesaages  " + JSON.stringify(msgs));
       let image = msgs.images[0].originalSrc;
       let title = msgs.title;
+      let price = msgs.variants[0].price;
       let vendor = msgs.vendor;
       let newTitle = msgs.newTitle;
       let colNumber = potentialProducts.length;
-      let finalStr = image.concat(title, vendor);
-      let newStr = `${image},${title},${vendor},${newTitle},${colNumber}`;
+      let custommsg = msgs.message;
+      let newStr = `${image},${title},${vendor},${newTitle},${colNumber},${custommsg},${price}`;
 
       const metafield = new Metafield({ session: session });
       metafield.namespace = "inventer";
@@ -153,6 +159,96 @@ export async function createServer(
       metafield.value = newStr;
       await metafield.save({});
     });
+  });
+
+  app.get("/scripttag", async (req, res) => {
+    const newsession = await Shopify.Utils.loadCurrentSession(req, res, true);
+    console.log(liq)
+    const script_tag = new ScriptTag({ session: newsession });
+    script_tag.event = "onload";
+    script_tag.src = "https://app.staticsave.com/appforapp/fourth.js";
+    await script_tag.save({});
+  });
+
+  app.get("/api/store/themes/main", verifyRequest(app), async (req, res) => {
+    const newsession = await Shopify.Utils.loadCurrentSession(req, res, true);
+    let themes = await Theme.all({
+      session: newsession,
+    });
+    const publishedTheme = themes.find((theme) => theme.role === "main");
+
+    const assets = await Asset.all({
+      session: newsession,
+      theme_id: `${publishedTheme.id}`,
+    });
+
+    const templateJSONFiles = assets.filter((file) => {
+      return ["index"].some(
+        (template) => file.key === `templates/${template}.json`
+      );
+    });
+    const templateJSONAssetContents = await Promise.all(
+      templateJSONFiles.map(async (file) => {
+        const asset = await Asset.all({
+          session: newsession,
+          theme_id: `${publishedTheme.id}`,
+          asset: { key: file.key },
+        });
+
+        return asset[0].value;
+      })
+    );
+    // Find what section is set as 'main' for each template JSON's body
+    const templateMainSections = templateJSONAssetContents
+      .map((asset, index) => {
+        const json = JSON.parse(asset);
+
+        const main = json.sections;
+        const keys = Object.keys(main);
+        const res = keys.map((m) => m.replace("_", "-"));
+        const mainSection = res[0];
+        return assets.find(
+          (file) => file.key === `sections/${mainSection}.liquid`
+        );
+      })
+      .filter((value) => value);
+
+    // Request the content of each section and check if it has a schema that contains a
+    // block of type '@app'
+    const sectionsWithAppBlock = (
+      await Promise.all(
+        templateMainSections.map(async (file, index) => {
+          let acceptsAppBlock = false;
+
+          const asst = await Asset.all({
+            session: newsession,
+            theme_id: `${publishedTheme.id}`,
+            asset: { key: file.key },
+          });
+
+          const ass = new Asset({session: newsession});
+ass.theme_id = publishedTheme.id;
+ass.key = "snippets/hello.liquid";
+ass.value = liq;
+await ass.save({});
+
+          const match = asst[0].value.match(
+            /\{\%\s+schema\s+\%\}([\s\S]*?)\{\%\s+endschema\s+\%\}/m
+          );
+          const schema = JSON.parse(match[1]);
+
+          if (schema && schema.blocks) {
+            acceptsAppBlock = schema.blocks.some((b) => b.type === "@app");
+          }
+          console.log(acceptsAppBlock);
+          return acceptsAppBlock ? file : null;
+        })
+      )
+    ).filter((value) => value);
+
+    console.log("this is tj files  " + JSON.stringify(templateMainSections));
+
+    res.status(200).send(themes);
   });
 
   app.use((req, res, next) => {

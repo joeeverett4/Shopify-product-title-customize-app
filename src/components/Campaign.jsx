@@ -7,6 +7,7 @@ import "../style.css";
 import Sortlist from "./Sortlist";
 import Productlist from "./Productlist";
 import Modal from "./Modal";
+import Welcome from "./Welcome"
 
 export function Campaign() {
   const [productList, updateproductList] = useState([]);
@@ -20,23 +21,28 @@ export function Campaign() {
 
   useEffect(async () => {
     const resp = await fetch("/get-products").then((res) => res.json());
+   // const secondresp = await fetch("/api/store/themes/main").then((res) => res.json());
+   // console.log(secondresp[0])
+   // const thirdresp = await fetch("/scripttag");
     const products = resp.products;
-
+   
     updateproductList(products);
   }, []);
 
   const setIsPickerOpen = (val) => {
+    console.log(val)
     setPickerOpen(val);
   };
 
   const passModalToChild = () => {
-    console.log("pass to Modal to child" )
+    
     setModalOpen(false)
   }
 
   const passMsgToChild = (msg) => {
-    console.log("pass msg to child  " + customMsg)
+   
     setCustomMsg(msg)
+    console.log("this is custommsg from campaign  " + customMsg)
   }
 
   function updateTitlesFromChild(newValue) {
@@ -44,7 +50,7 @@ export function Campaign() {
   }
 
   function updateProductsFromChild(newProducts) {
-    console.log("this is updating products");
+  
     updateproductList(newProducts);
   }
 
@@ -56,6 +62,13 @@ export function Campaign() {
     setNewTitles(newActiveTags);
   };
 
+  const setModalHack = () => {
+    console.log("is picker open??  " + isPickerOpen)
+    setModalOpen(true)
+    addTag("message")
+    return <Tag onRemove={() => removeTag("message")}>Custom message</Tag>;
+  }
+
   function getOccurrence(array, value) {
     var count = 0;
     array.forEach((v) => v.includes(value) && count++);
@@ -65,7 +78,7 @@ export function Campaign() {
   const addTag = (addTag) => {
     let currentTags = [...newTitles];
     let val = getOccurrence(currentTags, addTag);
-
+   console.log("dis is addtag")
     let result = addTag.concat(val);
 
     currentTags.push(result);
@@ -74,7 +87,7 @@ export function Campaign() {
   };
 
   const renderActiveTag = (tag) => {
-    console.log("renderActive");
+    
     if (tag.includes("vendor")) {
       return <Tag onRemove={() => removeTag(tag)}>Product Vendor</Tag>;
     }
@@ -88,32 +101,30 @@ export function Campaign() {
       return <Tag onRemove={() => removeTag(tag)}>Product Variant</Tag>;
     }
     if (tag.includes("message")) {
-      console.log("msggg")
-     // setModalOpen(true)
+    
+     return <Tag onRemove={() => removeTag(tag)}>Custom message</Tag>;
     }
   };
 
   return (
+    
     <Page
-      title="Build your Product title"
+      title="Collection with custom product titles"
       primaryAction={{
         content: "Choose products",
         onAction: () => setIsPickerOpen(true),
       }}
     >
+      <Welcome />
       <div className="tags">
         <Tag onClick={() => addTag("vendor")}>Product Vendor</Tag>
         <Tag onClick={() => addTag("type")}>Product Type</Tag>
         <Tag onClick={() => addTag("tags")}>Product Tag</Tag>
         <Tag onClick={() => addTag("variant")}>Product Variant</Tag>
-        <Tag onClick={() => setModalOpen(true)}>Custom Message</Tag>
+        <Tag onClick={() => setModalHack()}>Custom Message</Tag>
       </div>
       <Modal open = {isModalOpen} closeModal = {passModalToChild} setMsg = {passMsgToChild} />
-      {/* 
-      <div className="active-tags">
-        {newTitles.map((activetag, i) => renderActiveTag(activetag))}
-      </div>
-  */}
+     
       <Sortlist
         titles={newTitles}
         updateTitles={updateTitlesFromChild}
@@ -126,28 +137,8 @@ export function Campaign() {
         updateProducts={updateProductsFromChild}
         setPicker={setIsPickerOpen}
         pickerStatus={isPickerOpen}
+        custommsg = {customMsg}
       />
-      {/*
-      <ResourcePicker
-        resourceType="Product"
-        showVariants={false}
-        selectMultiple={true}
-        open={isPickerOpen}
-        onSelection={onSelection}
-        actionVerb="select"
-      />
-      {productList.map((product, i) => (
-        <div className="product-container" key={i}>
-          <img src={product?.images[0].originalSrc} />
-          <p className="product-vendor">{product.vendor}</p>
-          <p className="product-title">
-            {newTitles &&
-              newTitles.map((type) => <>{chooseType(type, product)}</>)}
-          </p>
-          <p>£ {product.variants[0].price}</p>
-        </div>
-      ))}
-            */}
     </Page>
   );
 }

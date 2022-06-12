@@ -15,15 +15,16 @@ const [formmsg, setformmsg] = useState("")
  }
 
  const sendMsg = () =>{
+     console.log("message sent")
      setMsg(formmsg)
  }
 
   return (
      <div className = "modal" style={ { display: open == true ? 'block' : 'none' } }> 
      <p>Enter your custom message</p>
-    <div class="wrapper" >
-      <div class="search">
-        <input type="textarea" onChange = {handleChange} placeholder="..." />
+    <div className ="wrapper" >
+      <div className ="search">
+        <input type="textarea" onChange = {handleChange} placeholder="placeholder" value = {formmsg} />
       </div>
     </div>
        <ButtonGroup>
