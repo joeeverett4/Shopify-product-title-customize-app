@@ -80,6 +80,7 @@ export default class Sortlist extends Component {
               {...provided.droppableProps}
             >
               {this.props.titles.map((item, index) => (
+                
                 <Draggable key={`item-${index}`} draggableId={`item-${index}`} index={index}>
                   {(provided, snapshot) => (
                     <div
@@ -91,7 +92,7 @@ export default class Sortlist extends Component {
                         provided.draggableProps.style
                       )}
                     >
-                     {this.props.renderActiveTag(item)}
+                     {this.props.renderActiveTag(item)} {console.log(index)}
                     </div>
                   )}
                 </Draggable>

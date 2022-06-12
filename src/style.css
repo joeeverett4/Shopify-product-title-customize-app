@@ -17,7 +17,7 @@ img {
 
 .tags {
   margin-bottom: 25px;
-  margin-top:25px;
+  margin-top: 25px;
 }
 
 .active-tags {
@@ -76,5 +76,27 @@ span {
 
 .btn-container {
   display: block;
-  margin-bottom:25px;
+  margin-bottom: 25px;
+}
+
+.Tags-button {
+  
+  min-width: 12px;
+  border-radius: 16px;
+  outline: none;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 2px 12px;
+  background-color: rgba(0, 0, 0, 0.05);
+  margin-right: 15px;
+  cursor: pointer;
+  
+}
+
+.svg--container {
+  padding-left: 10px;
+  vertical-align: middle;
+}
+
+.svg--container svg {
+  width: 15px;
 }
