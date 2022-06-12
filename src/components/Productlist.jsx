@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { Toast, useAppBridge } from "@shopify/app-bridge-react";
+import {Button} from '@shopify/polaris';
 import { userLoggedInFetch } from "../App";
 import "../style.css";
 
 export default function Productlist({ products, titles, updateProducts, setPicker, pickerStatus, custommsg }) {
+
+  const [isPickerOpen, setPickerOpen] = useState(false);
   
   const app = useAppBridge();
   const fetch = userLoggedInFetch(app);
@@ -15,7 +18,7 @@ export default function Productlist({ products, titles, updateProducts, setPicke
     let obj = [];
     let newObj = {};
 
-    console.log("this is props msg " + custommsg)
+    console.log("selection  " + JSON.stringify(selection))
 
     for (const element of selection) {
         
@@ -91,11 +94,14 @@ export default function Productlist({ products, titles, updateProducts, setPicke
 
   return (
     <>
+    <div className = "btn-container">
+      <Button onClick  = {() => setPickerOpen(true)} primary>Choose Products</Button>
+      </div>
       <ResourcePicker
         resourceType="Product"
         showVariants={false}
         selectMultiple={true}
-        open={pickerStatus}
+        open={isPickerOpen}
         onSelection={onSelection}
         actionVerb="select"
       />
@@ -109,6 +115,7 @@ export default function Productlist({ products, titles, updateProducts, setPicke
           <p>£ {product.variants[0].price}</p>
         </div>
       ))}
+      
     </>
   );
 }

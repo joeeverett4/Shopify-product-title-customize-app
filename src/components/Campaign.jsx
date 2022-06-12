@@ -29,6 +29,8 @@ export function Campaign() {
     updateproductList(products);
   }, []);
 
+
+
   const setIsPickerOpen = (val) => {
     console.log(val)
     setPickerOpen(val);
@@ -78,7 +80,7 @@ export function Campaign() {
   const addTag = (addTag) => {
     let currentTags = [...newTitles];
     let val = getOccurrence(currentTags, addTag);
-   console.log("dis is addtag")
+   console.log("dis is addhikhtag")
     let result = addTag.concat(val);
 
     currentTags.push(result);
@@ -109,11 +111,7 @@ export function Campaign() {
   return (
     
     <Page
-      title="Collection with custom product titles"
-      primaryAction={{
-        content: "Choose products",
-        onAction: () => setIsPickerOpen(true),
-      }}
+      title=""
     >
       <Welcome />
       <div className="tags">

@@ -31,25 +31,9 @@ export default function App() {
             forceRedirect: true,
           }}
         >
-          <NavigationMenu
-            navigationLinks={[
-              {
-                label: "Home",
-                destination: "/",
-              },
-              {
-                label: "About",
-                destination: "/about",
-              },
-            ]}
-          />
+        
           <MyProvider>
-            <Routes>
-              <Route exact path="/" element={<Campaign />} />
-
-              <Route path="about" element={<About />} />
-            </Routes>
-            
+        <Campaign />
           </MyProvider>
         </AppBridgeProvider>
       </PolarisProvider>

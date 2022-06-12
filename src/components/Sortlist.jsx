@@ -32,7 +32,7 @@ const getListStyle = isDraggingOver => ({
   display: 'flex',
   padding: grid,
   paddingLeft: '0px',
-  paddingBottom: '50px',
+  paddingBottom: '20px',
   overflow: 'auto',
 });
 
