@@ -10,6 +10,7 @@ import Sortlist from "./Sortlist";
 import Productlist from "./Productlist";
 import Modal from "./Modal";
 import Welcome from "./Welcome";
+import Newsortlist from "./Newsortlist"
 
 export function Campaign() {
   const [productList, updateproductList] = useState([]);
@@ -81,9 +82,9 @@ export function Campaign() {
 
   const removeTag = (typeOfTag) => {
     let arr = newTitles;
-
-    let newActiveTags = arr.filter((type) => type !== typeOfTag);
-
+    console.log("removeTag " + typeOfTag)
+    let newActiveTags = arr.filter((type) => type.includes(typeOfTag) === false);
+   console.log(newActiveTags)
     setNewTitles(newActiveTags);
   };
 
@@ -112,11 +113,23 @@ export function Campaign() {
   };
 
   const renderActiveTag = (tag) => {
+    if (tag.includes("title")) {
+      return (
+        <div className="Tags-button">
+          Product Title
+          <span className = "svg--container" onClick={() => removeTag(tag)}>
+          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
+  <path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
+</svg>
+          </span>
+        </div>
+      );
+    }
     if (tag.includes("vendor")) {
       return (
         <div className="Tags-button">
           Product Vendor
-          <span className = "svg--container" onClick={() => console.log("svg")}>
+          <span className = "svg--container" onClick={() => removeTag(tag)}>
           <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
   <path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
 </svg>
@@ -127,7 +140,7 @@ export function Campaign() {
     if (tag.includes("type")) {
       return  <div className="Tags-button">
       Product Type
-      <span className = "svg--container" onClick={() => console.log("svg")}>
+      <span className = "svg--container" onClick={() => removeTag(tag)}>
       <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
 <path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
 </svg>
@@ -137,7 +150,7 @@ export function Campaign() {
     if (tag.includes("tags")) {
       return  <div className="Tags-button">
       Product Tags
-      <span className = "svg--container" onClick={() => console.log("svg")}>
+      <span className = "svg--container" onClick={() => removeTag(tag)}>
       <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
 <path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
 </svg>
@@ -147,7 +160,7 @@ export function Campaign() {
     if (tag.includes("variant")) {
       return  <div className="Tags-button">
       Product Variant
-      <span className = "svg--container" onClick={() => console.log("svg")}>
+      <span className = "svg--container" onClick={() => removeTag(tag)}>
       <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
 <path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
 </svg>
@@ -157,7 +170,7 @@ export function Campaign() {
     if (tag.includes("message")) {
       return  <div className="Tags-button">
       Custom Message
-      <span className = "svg--container" onClick={() => console.log("svg")}>
+      <span className = "svg--container" onClick={() => removeTag(tag)}>
       <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
 <path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
 </svg>
@@ -170,6 +183,9 @@ export function Campaign() {
     <Page title="">
       <Welcome />
       <div className="tags">
+      <button className="Tags-button" onClick={() => addTag("title")}>
+          Product Title
+        </button>
         <button className="Tags-button" onClick={() => addTag("vendor")}>
           Product Vendor
         </button>

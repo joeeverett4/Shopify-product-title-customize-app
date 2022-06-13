@@ -164,13 +164,13 @@ export async function createServer(
   });
 
   app.get("/scripttag", async (req, res) => {
-    const newsession = await Shopify.Utils.loadCurrentSession(req, res, true);
+   /* const newsession = await Shopify.Utils.loadCurrentSession(req, res, true);
     console.log(liq)
     const script_tag = new ScriptTag({ session: newsession });
     script_tag.event = "onload";
     script_tag.src = "https://app.staticsave.com/appforapp/fourth.js";
     await script_tag.save({});
-    res.end()
+    res.end() */
   });
 
   app.get("/api/store/themes/main", verifyRequest(app), async (req, res) => {

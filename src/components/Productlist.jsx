@@ -67,7 +67,9 @@ export default function Productlist({ products, titles, updateProducts, setPicke
 
   const chooseType = (type, product) => {
  
-    
+    if (type.includes("title")) {
+      return <>{product.title + " "}</>;
+    }
 
     if (type.includes("vendor")) {
       return <>{product.vendor + " "}</>;
