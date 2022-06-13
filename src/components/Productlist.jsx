@@ -42,7 +42,7 @@ export default function Productlist({ products, titles, updateProducts, setPicke
 
     updateProducts(selection);
 
-    setPicker(false);
+    setPickerOpen(false);
     
     const res = await fetch("/deletemeta", {
       method: "POST",

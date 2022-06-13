@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import fetchIntercept from 'fetch-intercept';
 import { Page, Tag } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { Toast, useAppBridge } from "@shopify/app-bridge-react";
+import { getSessionToken } from "@shopify/app-bridge-utils";
 import { userLoggedInFetch } from "../App";
 import "../style.css";
 import Sortlist from "./Sortlist";
@@ -18,6 +20,32 @@ export function Campaign() {
 
   const app = useAppBridge();
   const fetch = userLoggedInFetch(app);
+
+  const unregister = fetchIntercept.register({
+    request: function (url, config) {
+        // Modify the url or config here
+         getSessionToken(app).then((token) => {
+          config.headers["Authorization"] = `Bearer ${token}`;
+        })
+        console.log("hello this is fetch")
+        return [url, config];
+    },
+
+    requestError: function (error) {
+        // Called when an error occured during another 'request' interceptor call
+        return Promise.reject(error);
+    },
+
+    response: function (response) {
+        // Modify the reponse object
+        return response;
+    },
+
+    responseError: function (error) {
+        // Handle an fetch error
+        return Promise.reject(error);
+    }
+});
 
   useEffect(async () => {
     const resp = await fetch("/get-products").then((res) => res.json());

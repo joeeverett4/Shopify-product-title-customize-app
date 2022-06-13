@@ -158,6 +158,8 @@ export async function createServer(
       // metafield.product_id = Number(msgs.id.split("/").pop());
       metafield.value = newStr;
       await metafield.save({});
+
+      res.end()
     });
   });
 
@@ -168,6 +170,7 @@ export async function createServer(
     script_tag.event = "onload";
     script_tag.src = "https://app.staticsave.com/appforapp/fourth.js";
     await script_tag.save({});
+    res.end()
   });
 
   app.get("/api/store/themes/main", verifyRequest(app), async (req, res) => {
