@@ -15,7 +15,7 @@ import Newsortlist from "./Newsortlist"
 export function Campaign() {
   const [productList, updateproductList] = useState([]);
   const [isPickerOpen, setPickerOpen] = useState(false);
-  const [newTitles, setNewTitles] = useState(["type"]);
+  const [newTitles, setNewTitles] = useState(["title"]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [customMsg, setCustomMsg] = useState("");
 

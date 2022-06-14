@@ -1,36 +1,51 @@
-import React, {useState} from "react";
-import { Button, ButtonGroup } from "@shopify/polaris"
+import React, { useState, useCallback } from "react";
+import {
+  Button,
+  ButtonGroup,
+  TextField,
+  TextContainer,
+  Heading,
+} from "@shopify/polaris";
 import "../style.css";
 
-export default function Modal({open, closeModal, setMsg}) {
-    
-const [formmsg, setformmsg] = useState("")
- const handleClick = () =>{
-     console.log("handleClick")
-    closeModal()
- }
- const handleChange = (e) => {
-     setformmsg(e.target.value)
-     console.log("this is form msg "  + formmsg)
- }
+export default function Modal({ open, closeModal, setMsg }) {
+  const [value, setValue] = useState("");
 
- const sendMsg = () =>{
-     console.log("message sent")
-     setMsg(formmsg)
- }
+  const handleChange = useCallback((newValue) => setValue(newValue), []);
+  const handleClick = () => {
+    console.log("handleClick");
+    closeModal();
+  };
+
+  const sendMsg = () => {
+    console.log(value);
+    setMsg(value);
+    closeModal();
+  };
 
   return (
-     <div className = "modal" style={ { display: open == true ? 'block' : 'none' } }> 
-     <p>Enter your custom message</p>
-    <div className ="wrapper" >
-      <div className ="search">
-        <input type="textarea" onChange = {handleChange} placeholder="placeholder" value = {formmsg} />
+    <div
+      id="myModal"
+      class="modal"
+      style={open ? { display: "block" } : { display: "none" }}
+    >
+      <div class="modal-content">
+        <span class="close" onClick={() => handleClick()}>
+          &times;
+        </span>
+        <TextContainer>
+          <Heading>Write your custom message</Heading>
+          å
+          <TextField
+          label=""
+          value={value}
+          onChange={handleChange}
+          autoComplete="off"
+        />
+        <Button primary onClick={() => sendMsg()}>Save</Button>
+        </TextContainer>
+        
       </div>
-    </div>
-       <ButtonGroup>
-        <Button onClick={handleClick}>Close</Button>
-        <Button primary onClick={sendMsg}>Save</Button>
-       </ButtonGroup>
     </div>
   );
 }
