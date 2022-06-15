@@ -5,21 +5,25 @@ import {Button} from '@shopify/polaris';
 import { userLoggedInFetch } from "../App";
 import "../style.css";
 
-export default function Productlist({ products, titles, updateProducts, setPicker, pickerStatus, custommsg }) {
+export default function Productlist({ products, titles, updateProducts, updatecurrentProducts, setPicker, pickerStatus, custommsg }) {
 
   const [isPickerOpen, setPickerOpen] = useState(false);
   
   const app = useAppBridge();
   const fetch = userLoggedInFetch(app);
 
+
+
+
   const onSelection = async ({ selection = [] }) => {
-    let val = document.querySelectorAll(".product-title");
+   
+    /* let val = document.querySelectorAll(".product-title");
     let i = 0;
     let obj = [];
     let newObj = {};
 
-    console.log("selection  " + JSON.stringify(selection))
-
+    
+    
     for (const element of selection) {
         
       if (val.length != 0 && val[i] != undefined) {
@@ -33,17 +37,23 @@ export default function Productlist({ products, titles, updateProducts, setPicke
           message:"",
         };
       }
+      console.log("this is val i inner text  " +  val[i].innerText)
       i++;
       const res = Object.assign(element, newObj);
       obj.push(res);
+      
     }
+  */
+   
 
     const sendValues = products;
 
+    updatecurrentProducts(sendValues)
     updateProducts(selection);
 
     setPickerOpen(false);
     
+    /*
     const res = await fetch("/deletemeta", {
       method: "POST",
       headers: {
@@ -61,6 +71,7 @@ export default function Productlist({ products, titles, updateProducts, setPicke
       },
       body: JSON.stringify(obj),
     });
+    */
     
   };
 

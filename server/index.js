@@ -78,10 +78,10 @@ export async function createServer(
   });
 
   app.get("/get-products", verifyRequest(app), async (req, res) => {
-    console.log("this is products-count  " + req.body);
+    
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
     const { shop: shopOrigin, accessToken } = session;
-    console.log("get-products");
+  
     const shop = await Shop.findOne({
       shopify_domain: shopOrigin,
     });
@@ -126,7 +126,7 @@ export async function createServer(
     }
   });
 
-  app.post("/mongo", async (req, res) => {
+  app.post("/createmeta", async (req, res) => {
     const msg = JSON.stringify(req.body);
 
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
@@ -141,7 +141,7 @@ export async function createServer(
 
     let hello;
     potentialProducts.map(async (msgs, i) => {
-      console.log("this is mesaages  " + JSON.stringify(msgs));
+      
       let image = msgs.images[0].originalSrc;
       let title = msgs.title;
       let price = msgs.variants[0].price;
@@ -150,7 +150,7 @@ export async function createServer(
       let colNumber = potentialProducts.length;
       let custommsg = msgs.message;
       let newStr = `${image},${title},${vendor},${newTitle},${colNumber},${custommsg},${price}`;
-
+      console.log("this is mesaages  " + newStr);
       const metafield = new Metafield({ session: session });
       metafield.namespace = "inventer";
       metafield.key = `text_field${i}`;
@@ -243,13 +243,13 @@ await ass.save({});
           if (schema && schema.blocks) {
             acceptsAppBlock = schema.blocks.some((b) => b.type === "@app");
           }
-          console.log(acceptsAppBlock);
+          
           return acceptsAppBlock ? file : null;
         })
       )
     ).filter((value) => value);
 
-    console.log("this is tj files  " + JSON.stringify(templateMainSections));
+    
 
     res.status(200).send(themes);
   });

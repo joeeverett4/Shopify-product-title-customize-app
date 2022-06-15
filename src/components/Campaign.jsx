@@ -11,9 +11,11 @@ import Productlist from "./Productlist";
 import Modal from "./Modal";
 import Welcome from "./Welcome";
 import Newsortlist from "./Newsortlist"
+import { metafiledAPICalls } from "../helpers/index.js"
 
 export function Campaign() {
   const [productList, updateproductList] = useState([]);
+  const [currentproductList, updatecurrentproductList] = useState([]);
   const [isPickerOpen, setPickerOpen] = useState(false);
   const [newTitles, setNewTitles] = useState(["title"]);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -22,31 +24,6 @@ export function Campaign() {
   const app = useAppBridge();
   const fetch = userLoggedInFetch(app);
 
-  const unregister = fetchIntercept.register({
-    request: function (url, config) {
-        // Modify the url or config here
-         getSessionToken(app).then((token) => {
-          config.headers["Authorization"] = `Bearer ${token}`;
-        })
-        console.log("hello this is fetch")
-        return [url, config];
-    },
-
-    requestError: function (error) {
-        // Called when an error occured during another 'request' interceptor call
-        return Promise.reject(error);
-    },
-
-    response: function (response) {
-        // Modify the reponse object
-        return response;
-    },
-
-    responseError: function (error) {
-        // Handle an fetch error
-        return Promise.reject(error);
-    }
-});
 
   useEffect(async () => {
     const resp = await fetch("/get-products").then((res) => res.json());
@@ -54,12 +31,12 @@ export function Campaign() {
     // console.log(secondresp[0])
     // const thirdresp = await fetch("/scripttag");
     const products = resp.products;
-
+  
     updateproductList(products);
   }, []);
 
   const setIsPickerOpen = (val) => {
-    console.log(val);
+   
     setPickerOpen(val);
   };
 
@@ -77,19 +54,25 @@ export function Campaign() {
   }
 
   function updateProductsFromChild(newProducts) {
+   
     updateproductList(newProducts);
+  }
+
+  function updatecurrentProductsFromChild(newProducts) {
+    
+    updatecurrentproductList(newProducts);
   }
 
   const removeTag = (typeOfTag) => {
     let arr = newTitles;
-    console.log("removeTag " + typeOfTag)
+   
     let newActiveTags = arr.filter((type) => type.includes(typeOfTag) === false);
-   console.log(newActiveTags)
+ 
     setNewTitles(newActiveTags);
   };
 
   const setModalHack = () => {
-    console.log("is picker open??  " + isPickerOpen);
+    
     setModalOpen(true);
     addTag("message");
     return <Tag onRemove={() => removeTag("message")}>Custom message</Tag>;
@@ -104,14 +87,66 @@ export function Campaign() {
   const addTag = (addTag) => {
     let currentTags = [...newTitles];
     let val = getOccurrence(currentTags, addTag);
-    console.log("dis is addhikhtag");
+    
     let result = addTag.concat(val);
 
     currentTags.push(result);
 
     setNewTitles(currentTags);
   };
+  const homeAPICalls = async () => {
+    
+    let val = document.querySelectorAll(".product-title");
+    let i = 0;
+    let obj = [];
+    let newObj = {};
 
+    
+    
+    for (const element of productList) {
+        
+      if (val.length != 0 && val[i] != undefined) {
+        newObj = {
+          newTitle: val[i].innerText,
+          message: customMsg,
+        };
+      } else {
+        newObj = {
+          newTitle: "",
+          message:"",
+        };
+      }
+      console.log("this is val i inner text  " +  val[i].innerText)
+      i++;
+      const res = Object.assign(element, newObj);
+      obj.push(res);
+      
+    }
+
+
+    
+    const res = await fetch("/deletemeta", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(currentproductList),
+    });
+
+    const response = await fetch("/createmeta", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(productList),
+    });
+
+    console.log("homeAPIcalls finished")
+    
+  };
+  
   const renderActiveTag = (tag) => {
     if (tag.includes("title")) {
       return (
@@ -121,6 +156,10 @@ export function Campaign() {
           <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
   <path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
 </svg>
+<svg class="icon icon-checkmark color-foreground-black" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 9" fill="none">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.35.643a.5.5 0 01.006.707l-6.77 6.886a.5.5 0 01-.719-.006L.638 4.845a.5.5 0 11.724-.69l2.872 3.011 6.41-6.517a.5.5 0 01.707-.006h-.001z" fill="currentColor"/>
+</svg>
+
           </span>
         </div>
       );
@@ -180,7 +219,15 @@ export function Campaign() {
   };
 
   return (
-    <Page title="">
+    <Page 
+    title=""
+    primaryAction = {
+      {
+      content: "Save",
+      onAction: () => homeAPICalls()
+      }
+    }
+    >
       <Welcome />
       <div className="tags">
       <button className="Tags-button" onClick={() => addTag("title")}>
@@ -216,8 +263,10 @@ export function Campaign() {
       />
       <Productlist
         products={productList}
+        
         titles={newTitles}
         updateProducts={updateProductsFromChild}
+        updatecurrentProducts = {updatecurrentProductsFromChild}
         setPicker={setIsPickerOpen}
         pickerStatus={isPickerOpen}
         custommsg={customMsg}
