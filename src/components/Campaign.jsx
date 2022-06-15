@@ -9,6 +9,7 @@ import "../style.css";
 import Sortlist from "./Sortlist";
 import Productlist from "./Productlist";
 import Modal from "./Modal";
+import SaveModal from "./SaveModal";
 import Welcome from "./Welcome";
 import Newsortlist from "./Newsortlist"
 import { metafiledAPICalls } from "../helpers/index.js"
@@ -19,6 +20,7 @@ export function Campaign() {
   const [isPickerOpen, setPickerOpen] = useState(false);
   const [newTitles, setNewTitles] = useState(["title"]);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isSaveModalOpen, setSaveModalOpen] = useState(false);
   const [customMsg, setCustomMsg] = useState("");
 
   const app = useAppBridge();
@@ -42,6 +44,8 @@ export function Campaign() {
 
   const passModalToChild = () => {
     setModalOpen(false);
+    setSaveModalOpen(false);
+    console.log("passModal")
   };
 
   const passMsgToChild = (msg) => {
@@ -101,7 +105,7 @@ export function Campaign() {
     let obj = [];
     let newObj = {};
 
-    
+    setSaveModalOpen(true)
     
     for (const element of productList) {
         
@@ -144,7 +148,7 @@ export function Campaign() {
     });
 
     console.log("homeAPIcalls finished")
-    
+  
   };
   
   const renderActiveTag = (tag) => {
@@ -155,9 +159,6 @@ export function Campaign() {
           <span className = "svg--container" onClick={() => removeTag(tag)}>
           <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
   <path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
-</svg>
-<svg class="icon icon-checkmark color-foreground-black" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 9" fill="none">
-  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.35.643a.5.5 0 01.006.707l-6.77 6.886a.5.5 0 01-.719-.006L.638 4.845a.5.5 0 11.724-.69l2.872 3.011 6.41-6.517a.5.5 0 01.707-.006h-.001z" fill="currentColor"/>
 </svg>
 
           </span>
@@ -254,6 +255,10 @@ export function Campaign() {
         closeModal={passModalToChild}
         setMsg={passMsgToChild}
       />
+     <SaveModal
+      open={isSaveModalOpen}
+      closeModal={passModalToChild}
+     /> 
 
       <Sortlist
         titles={newTitles}
