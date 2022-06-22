@@ -7,6 +7,7 @@ import { Metafield } from "@shopify/shopify-api/dist/rest-resources/2022-04/inde
 import { Theme } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
 import { Asset } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
 import { ScriptTag } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
+import {Image} from '@shopify/shopify-api/dist/rest-resources/2022-04/index.js';
 import "dotenv/config";
 import applyAuthMiddleware from "./middleware/auth.js";
 import verifyRequest from "./middleware/verify-request.js";
@@ -141,7 +142,18 @@ export async function createServer(
 
     let hello;
     potentialProducts.map(async (msgs, i) => {
+     // console.log("width  " + JSON.stringify(msgs))
+      let ImageID = msgs.images[0].id.split("/").pop()
+      let productID = msgs.id.split("/").pop()
+   let imageMain =  await Image.find({
+        session: session,
+        product_id: productID,
+        id: ImageID,
+      });
       
+      console.log(imageMain.id)
+      let imageWidth = imageMain.width;
+      let imageHeight = imageMain.height;
       let image = msgs.images[0].originalSrc;
       let title = msgs.title;
       let price = msgs.variants[0].price;
@@ -149,7 +161,7 @@ export async function createServer(
       let newTitle = msgs.newTitle;
       let colNumber = potentialProducts.length;
       let custommsg = msgs.message;
-      let newStr = `${image},${title},${vendor},${newTitle},${colNumber},${custommsg},${price}`;
+      let newStr = `${image},${title},${vendor},${newTitle},${colNumber},${custommsg},${price},${imageWidth},${imageHeight}`;
       console.log("this is mesaages  " + newStr);
       const metafield = new Metafield({ session: session });
       metafield.namespace = "inventer";
@@ -171,6 +183,21 @@ export async function createServer(
     script_tag.src = "https://app.staticsave.com/appforapp/fourth.js";
     await script_tag.save({});
     res.end() */
+/*const newsession = await Shopify.Utils.loadCurrentSession(req, res, true);
+ const sctags =  await ScriptTag.all({
+  session: newsession,
+});
+ console.log("this is scripttags  " + JSON.stringify(sctags))
+sctags.map(async (r)=>{
+console.log(r.id)
+let result = await ScriptTag.delete({
+  session: newsession,
+  id: r.id,
+});
+console.log(result)
+})
+res.end();*/
+
   });
 
   app.get("/api/store/themes/main", verifyRequest(app), async (req, res) => {
@@ -223,18 +250,18 @@ export async function createServer(
         templateMainSections.map(async (file, index) => {
           let acceptsAppBlock = false;
 
-          const asst = await Asset.all({
+        const asst = await Asset.all({
             session: newsession,
             theme_id: `${publishedTheme.id}`,
             asset: { key: file.key },
           });
-
+/*
           const ass = new Asset({session: newsession});
 ass.theme_id = publishedTheme.id;
 ass.key = "snippets/hello.liquid";
 ass.value = liq;
 await ass.save({});
-
+*/
           const match = asst[0].value.match(
             /\{\%\s+schema\s+\%\}([\s\S]*?)\{\%\s+endschema\s+\%\}/m
           );
@@ -249,7 +276,8 @@ await ass.save({});
       )
     ).filter((value) => value);
 
-    
+    // console.log("this is withAppBlock  " + sectionsWithAppBlock)
+    console.log("this is  json asset contents  " + templateJSONAssetContents.length)
 
     res.status(200).send(themes);
   });

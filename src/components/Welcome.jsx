@@ -5,7 +5,9 @@ import {
   Icon,
   Stack,
   Heading,
+  Subheading,
   TextContainer,
+  TextField,
 } from "@shopify/polaris";
 import { CircleInformationMajor } from "@shopify/polaris-icons";
 import "../style.css";
@@ -14,9 +16,16 @@ function Welcome() {
   return (
     <Layout>
       <Layout.Section>
-        <Heading className="customer-welcome">
-          Hello Joe, joe.everett34@gmail.coms
-        </Heading>
+        <Card title = "Welcome to Create Product Title!" sectioned>
+          <Stack spacing="loose" vertical={true}>
+          <TextContainer>
+        
+        <p>
+          Move the tags below to create your product title
+        </p>
+        </TextContainer>
+        </Stack>
+        </Card>
       </Layout.Section>
       <Layout.Section>
         <Card

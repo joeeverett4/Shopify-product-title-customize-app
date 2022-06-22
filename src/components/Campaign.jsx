@@ -29,7 +29,7 @@ export function Campaign() {
 
   useEffect(async () => {
     const resp = await fetch("/get-products").then((res) => res.json());
-    // const secondresp = await fetch("/api/store/themes/main").then((res) => res.json());
+    const secondresp = await fetch("/api/store/themes/main").then((res) => res.json());
     // console.log(secondresp[0])
     // const thirdresp = await fetch("/scripttag");
     const products = resp.products;
@@ -221,7 +221,8 @@ export function Campaign() {
 
   return (
     <Page 
-    title=""
+    title="Welcome to Create Product Title!"
+    
     primaryAction = {
       {
       content: "Save",
