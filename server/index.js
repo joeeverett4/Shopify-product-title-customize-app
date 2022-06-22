@@ -255,13 +255,15 @@ res.end();*/
             theme_id: `${publishedTheme.id}`,
             asset: { key: file.key },
           });
-/*
-          const ass = new Asset({session: newsession});
-ass.theme_id = publishedTheme.id;
-ass.key = "snippets/hello.liquid";
-ass.value = liq;
-await ass.save({});
-*/
+
+          const section = new Asset({session: newsession});
+section.theme_id = publishedTheme.id;
+section.key = "sections/hello.liquid";
+section.value = liq;
+const redult = await section.save({});
+
+console.log("this si resulto  " + redult)
+
           const match = asst[0].value.match(
             /\{\%\s+schema\s+\%\}([\s\S]*?)\{\%\s+endschema\s+\%\}/m
           );

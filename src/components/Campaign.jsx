@@ -221,7 +221,7 @@ export function Campaign() {
 
   return (
     <Page 
-    title="Welcome to Create Product Title!"
+    title="Hello Joe joe.everett34@gmail.com"
     
     primaryAction = {
       {
@@ -277,6 +277,7 @@ export function Campaign() {
         pickerStatus={isPickerOpen}
         custommsg={customMsg}
       />
+      <Welcome />
     </Page>
   );
 }

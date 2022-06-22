@@ -80,7 +80,7 @@ span {
   background-color: rgba(0, 0, 0, 0.05);
   margin-right: 15px;
   cursor: pointer;
-  
+  width:fit-content;
 }
 
 .tags .Tags-button{
@@ -147,6 +147,29 @@ span {
   animation-name: animatetop;
   animation-duration: 0.4s;
   top:300px;
+}
+
+.d-flex{
+  display:flex;
+  flex-direction: column;
+}
+
+.Tags-row{
+  display:flex;
+  margin: 10px 0px;
+}
+
+.Tags-row h4{
+  margin-right:5px;
+}
+
+.Tags-row .Tags-button{
+  font-size:10px;
+  margin-left:10px;
+}
+
+.Tags-row .svg--container svg{
+  width:10px;
 }
 
 /* Add Animation */
