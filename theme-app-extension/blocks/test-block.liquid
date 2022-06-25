@@ -1,4 +1,5 @@
 {{ 'style.css' | asset_url | stylesheet_tag }}
+{% if shop.metafields.check.enabled == "true" %}
 <h3>Our Bestsellers</h3>
 <div style = "display:flex;justify-content:space-around;">
   
@@ -8,7 +9,7 @@
        {% assign col = title[4] %}
        {% assign image_width = title[7] %}
        
-    
+    <h1>{{shop.metafields.check.enabled}}</h1>
     <div style = "display:flex;flex-direction:column;" class = "grid-item-{{col}}"> 
      
         <img src = "{{title[0]}}" width = "{{image_width}}" height = "auto" style = "width:100%;object-fit:contain;margin-bottom:15px;" />
@@ -26,7 +27,7 @@
        
 {% endfor %}
   </div>
-
+{% endif %}
 {% schema %}
 {
   "name": "t:blocks.product-reviews.name",

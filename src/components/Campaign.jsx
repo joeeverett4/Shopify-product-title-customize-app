@@ -12,6 +12,7 @@ import Modal from "./Modal";
 import SaveModal from "./SaveModal";
 import Welcome from "./Welcome";
 import Newsortlist from "./Newsortlist"
+import Enabler from "./Enabler";
 import { metafiledAPICalls } from "../helpers/index.js"
 
 export function Campaign() {
@@ -230,7 +231,12 @@ export function Campaign() {
       }
     }
     >
+      <section style = {{padding:"20px 0px"}}>
       <Welcome />
+      </section>
+      <section style = {{padding:"20px 0px"}}>
+      <Enabler />
+      </section>
       <div className="tags">
       <button className="Tags-button" onClick={() => addTag("title")}>
           Product Title
@@ -277,7 +283,7 @@ export function Campaign() {
         pickerStatus={isPickerOpen}
         custommsg={customMsg}
       />
-      <Welcome />
+     
     </Page>
   );
 }

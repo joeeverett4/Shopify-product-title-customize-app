@@ -9,6 +9,8 @@ import {
   TextContainer,
   TextField,
 } from "@shopify/polaris";
+
+
 import { CircleInformationMajor } from "@shopify/polaris-icons";
 import "../style.css";
 
@@ -43,7 +45,7 @@ function Welcome() {
                         aria-hidden="true"
                         focusable="false"
                         role="presentation"
-                        class="icon icon-close"
+                        className="icon icon-close"
                         fill="none"
                         viewBox="0 0 18 17"
                       >
@@ -64,7 +66,7 @@ function Welcome() {
                         aria-hidden="true"
                         focusable="false"
                         role="presentation"
-                        class="icon icon-close"
+                        className="icon icon-close"
                         fill="none"
                         viewBox="0 0 18 17"
                       >
@@ -85,7 +87,7 @@ function Welcome() {
                         aria-hidden="true"
                         focusable="false"
                         role="presentation"
-                        class="icon icon-close"
+                        className="icon icon-close"
                         fill="none"
                         viewBox="0 0 18 17"
                       >

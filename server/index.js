@@ -82,7 +82,7 @@ export async function createServer(
     
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
     const { shop: shopOrigin, accessToken } = session;
-  
+   console.log("get products  " + shopOrigin)
     const shop = await Shop.findOne({
       shopify_domain: shopOrigin,
     });
@@ -99,6 +99,29 @@ export async function createServer(
   });
 
   app.use(express.json());
+
+  app.post("/enablemeta", async (req, res) => {
+    try {
+      console.log("hello world")
+      console.log(req.body.body)
+     const metasession = await Shopify.Utils.loadCurrentSession(req, res);
+     const { shop: shopOrigin, accessToken } = metasession;
+     console.log("metashop  " + metasession)
+
+      const enablemetafield = new Metafield({ session: metasession });
+      enablemetafield.namespace = "check";
+      enablemetafield.key = `enabled`;
+      enablemetafield.type = "single_line_text_field";
+      // metafield.product_id = Number(msgs.id.split("/").pop());
+      enablemetafield.value = req.body.body;
+      await enablemetafield.save({});
+      res.end();
+    } catch (error) {
+      console.log("enable error")
+      res.status(500).send(error.message);
+    }
+  });
+
 
   app.post("/deletemeta", async (req, res) => {
     try {
