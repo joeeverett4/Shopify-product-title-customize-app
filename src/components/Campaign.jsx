@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import fetchIntercept from 'fetch-intercept';
 import { Page, Tag } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
@@ -83,12 +83,6 @@ export function Campaign() {
     return <Tag onRemove={() => removeTag("message")}>Custom message</Tag>;
   };
 
-  const toggleActive = useCallback(() => setSaveModalOpen((isSaveModalOpen) => !isSaveModalOpen), []);
-
-  const toastMarkup = isSaveModalOpen ? (
-    <Toast content="Save succsesful" onDismiss={toggleActive} />
-  ) : null;
-
   function getOccurrence(array, value) {
     var count = 0;
     array.forEach((v) => v.includes(value) && count++);
@@ -112,7 +106,7 @@ export function Campaign() {
     let obj = [];
     let newObj = {};
 
-    toggleActive()
+    setSaveModalOpen(true)
     
     for (const element of productList) {
         
@@ -268,7 +262,10 @@ export function Campaign() {
         closeModal={passModalToChild}
         setMsg={passMsgToChild}
       />
-     
+     <SaveModal
+      open={isSaveModalOpen}
+      closeModal={passModalToChild}
+     /> 
 
       <Sortlist
         titles={newTitles}
@@ -286,7 +283,7 @@ export function Campaign() {
         pickerStatus={isPickerOpen}
         custommsg={customMsg}
       />
-     {toastMarkup}
+     
     </Page>
   );
 }
