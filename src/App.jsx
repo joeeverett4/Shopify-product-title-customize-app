@@ -7,37 +7,32 @@ import {
 import {
   Provider as AppBridgeProvider,
   useAppBridge,
-  NavigationMenu,
 } from "@shopify/app-bridge-react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { authenticatedFetch } from "@shopify/app-bridge-utils";
 import { Redirect } from "@shopify/app-bridge/actions";
 import { AppProvider as PolarisProvider } from "@shopify/polaris";
 import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
 
-import { About } from "./components/About";
-
-import { Campaign } from "./components/Campaign";
+import { HomePage } from "./components/HomePage";
+import { ProductRow } from "./components/ProductRow"
+import { Campaign } from "./components/Campaign"
 
 export default function App() {
   return (
-    <Router>
-      <PolarisProvider i18n={translations}>
-        <AppBridgeProvider
-          config={{
-            apiKey: process.env.SHOPIFY_API_KEY,
-            host: new URL(location).searchParams.get("host"),
-            forceRedirect: true,
-          }}
-        >
-        
-          <MyProvider>
-        <Campaign />
-          </MyProvider>
-        </AppBridgeProvider>
-      </PolarisProvider>
-    </Router>
+    <PolarisProvider i18n={translations}>
+      <AppBridgeProvider
+        config={{
+          apiKey: process.env.SHOPIFY_API_KEY,
+          host: new URL(location).searchParams.get("host"),
+          forceRedirect: true,
+        }}
+      >
+        <MyProvider>
+          <Campaign />
+        </MyProvider>
+      </AppBridgeProvider>
+    </PolarisProvider>
   );
 }
 
