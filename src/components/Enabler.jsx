@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import {useNavigate} from '@shopify/app-bridge-react';
 import {
   Layout,
   Card,
@@ -18,6 +19,8 @@ export default function Enabler() {
 
   const app = useAppBridge();
   const fetch = userLoggedInFetch(app);
+
+  const navigate = useNavigate();
 
  async function enableordisable() {
   if(isEnabled){ 
@@ -50,6 +53,13 @@ export default function Enabler() {
   }
  }
 
+ async function tBilling(){
+   console.log("t-billing")
+  const resp = await fetch("/testbilling").then((res) => res.json())
+  const body = resp.res
+  navigate(body)
+ }
+
   function renderButton() {
     if(isEnabled){
     return <Button primary onClick = {() => enableordisable()}>Enable</Button>;
@@ -69,6 +79,7 @@ export default function Enabler() {
               <p>This app is enabled</p>
               </div>
               {renderButton()}
+              <Button outline onClick = {() => tBilling()}>Test</Button>;
               </div>
            
         </Card>

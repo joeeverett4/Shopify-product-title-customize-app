@@ -35,7 +35,7 @@ export default function Modal({ open, closeModal, setMsg }) {
         </span>
         <TextContainer>
           <Heading>Write your custom message</Heading>
-          å
+         
           <TextField
           label=""
           value={value}
