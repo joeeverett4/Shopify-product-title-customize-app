@@ -4,11 +4,18 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import { Shopify, ApiVersion } from "@shopify/shopify-api";
 import { Metafield } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
+import { Theme } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
+import { Asset } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
+import { ScriptTag } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
+import { Image } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
+import { RecurringApplicationCharge } from "@shopify/shopify-api/dist/rest-resources/2022-04/index.js";
 import "dotenv/config";
 import applyAuthMiddleware from "./middleware/auth.js";
 import verifyRequest from "./middleware/verify-request.js";
 import Shop from "../server/models/Shop.js";
 import connectDB from "../config/db.js";
+import { Console } from "console";
+import { liq } from "../src/assets/snippet.js";
 const USE_ONLINE_TOKENS = true;
 const TOP_LEVEL_OAUTH_COOKIE = "shopify_top_level_oauth";
 
@@ -75,10 +82,11 @@ export async function createServer(
   app.get("/get-products", verifyRequest(app), async (req, res) => {
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
     const { shop: shopOrigin, accessToken } = session;
-    console.log("get-products");
+    
     const shop = await Shop.findOne({
       shopify_domain: shopOrigin,
     });
+    console.log(typeof shop)
     res.status(200).send(shop);
   });
 
@@ -93,6 +101,57 @@ export async function createServer(
 
   app.use(express.json());
 
+  app.post("/enablemeta", async (req, res) => {
+    try {
+      console.log("hello world");
+      console.log(req.body.body);
+      const metasession = await Shopify.Utils.loadCurrentSession(req, res);
+      const { shop: shopOrigin, accessToken } = metasession;
+      console.log("metashop  " + metasession);
+
+      const enablemetafield = new Metafield({ session: metasession });
+      enablemetafield.namespace = "check";
+      enablemetafield.key = `enabled`;
+      enablemetafield.type = "single_line_text_field";
+      // metafield.product_id = Number(msgs.id.split("/").pop());
+      enablemetafield.value = req.body.body;
+      await enablemetafield.save({});
+    
+      res.end()
+    } catch (error) {
+      console.log("enable error");
+      res.status(500).send(error.message);
+    }
+  });
+
+ app.get("/testbilling", async (req, res) => {
+   try{
+  const session = await Shopify.Utils.loadCurrentSession(req, res);
+ 
+  const recurring_application_charge = new RecurringApplicationCharge({session: session});
+  recurring_application_charge.name = "Super Duper Plan";
+  recurring_application_charge.price = 10.0;
+  recurring_application_charge.return_url = "http://super-duper.shopifyapps.com";
+  recurring_application_charge.trial_days = 5;
+  const recurringObj = await recurring_application_charge.save({});
+  
+  const charges  = await RecurringApplicationCharge.all({
+    session: session,
+  });
+
+  const stringRes = {
+    res: charges[0].confirmation_url
+  }
+  
+  
+  res.status(200).send(stringRes);
+}
+ catch (error) {
+  console.log("enable error");
+  res.status(500).send(error.message);
+}
+ })
+
   app.post("/deletemeta", async (req, res) => {
     try {
       let metafieldsToDelete = req.body;
@@ -102,7 +161,7 @@ export async function createServer(
           let productMetas = await Metafield.all({
             session: session,
           });
-          console.log("this is metabas" + JSON.stringify(productMetas[i].id));
+
           /* console.log("thisw iss  " + JSON.stringify(productMetas[0].value))
      console.log("this is   " + JSON.stringify(productMetas[0].id)) */
 
@@ -120,9 +179,9 @@ export async function createServer(
     }
   });
 
-  app.post("/mongo", async (req, res) => {
+  app.post("/createmeta", async (req, res) => {
     const msg = JSON.stringify(req.body);
-    console.log("this is mosngo");
+
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
     const { shop: shopOrigin, accessToken } = session;
 
@@ -132,16 +191,30 @@ export async function createServer(
     );
 
     let potentialProducts = req.body;
+
     let hello;
     potentialProducts.map(async (msgs, i) => {
+      // console.log("width  " + JSON.stringify(msgs))
+      let ImageID = msgs.images[0].id.split("/").pop();
+      let productID = msgs.id.split("/").pop();
+      let imageMain = await Image.find({
+        session: session,
+        product_id: productID,
+        id: ImageID,
+      });
+
+      console.log(imageMain.id);
+      let imageWidth = imageMain.width;
+      let imageHeight = imageMain.height;
       let image = msgs.images[0].originalSrc;
       let title = msgs.title;
+      let price = msgs.variants[0].price;
       let vendor = msgs.vendor;
-      let finalStr = image.concat(title,vendor)
-      let newStr = `${image},${title},${vendor}`
-
-      console.log("this is new str    " + newStr)
-
+      let newTitle = msgs.newTitle;
+      let colNumber = potentialProducts.length;
+      let custommsg = msgs.message;
+      let newStr = `${image},${title},${vendor},${newTitle},${colNumber},${custommsg},${price},${imageWidth},${imageHeight}`;
+      console.log("this is mesaages  " + newStr);
       const metafield = new Metafield({ session: session });
       metafield.namespace = "inventer";
       metafield.key = `text_field${i}`;
@@ -149,7 +222,119 @@ export async function createServer(
       // metafield.product_id = Number(msgs.id.split("/").pop());
       metafield.value = newStr;
       await metafield.save({});
+
+      res.end();
     });
+  });
+
+  app.get("/scripttag", async (req, res) => {
+    /* const newsession = await Shopify.Utils.loadCurrentSession(req, res, true);
+    console.log(liq)
+    const script_tag = new ScriptTag({ session: newsession });
+    script_tag.event = "onload";
+    script_tag.src = "https://app.staticsave.com/appforapp/fourth.js";
+    await script_tag.save({});
+    res.end() */
+    /*const newsession = await Shopify.Utils.loadCurrentSession(req, res, true);
+ const sctags =  await ScriptTag.all({
+  session: newsession,
+});
+ console.log("this is scripttags  " + JSON.stringify(sctags))
+sctags.map(async (r)=>{
+console.log(r.id)
+let result = await ScriptTag.delete({
+  session: newsession,
+  id: r.id,
+});
+console.log(result)
+})
+res.end();*/
+  });
+
+  app.get("/api/store/themes/main", verifyRequest(app), async (req, res) => {
+    const newsession = await Shopify.Utils.loadCurrentSession(req, res, true);
+    let themes = await Theme.all({
+      session: newsession,
+    });
+    const publishedTheme = themes.find((theme) => theme.role === "main");
+
+    const assets = await Asset.all({
+      session: newsession,
+      theme_id: `${publishedTheme.id}`,
+    });
+
+    const templateJSONFiles = assets.filter((file) => {
+      return ["index"].some(
+        (template) => file.key === `templates/${template}.json`
+      );
+    });
+    const templateJSONAssetContents = await Promise.all(
+      templateJSONFiles.map(async (file) => {
+        const asset = await Asset.all({
+          session: newsession,
+          theme_id: `${publishedTheme.id}`,
+          asset: { key: file.key },
+        });
+
+        return asset[0].value;
+      })
+    );
+    // Find what section is set as 'main' for each template JSON's body
+    const templateMainSections = templateJSONAssetContents
+      .map((asset, index) => {
+        const json = JSON.parse(asset);
+
+        const main = json.sections;
+        const keys = Object.keys(main);
+        const res = keys.map((m) => m.replace("_", "-"));
+        const mainSection = res[0];
+        return assets.find(
+          (file) => file.key === `sections/${mainSection}.liquid`
+        );
+      })
+      .filter((value) => value);
+
+    // Request the content of each section and check if it has a schema that contains a
+    // block of type '@app'
+    const sectionsWithAppBlock = (
+      await Promise.all(
+        templateMainSections.map(async (file, index) => {
+          let acceptsAppBlock = false;
+
+          const asst = await Asset.all({
+            session: newsession,
+            theme_id: `${publishedTheme.id}`,
+            asset: { key: file.key },
+          });
+
+          const section = new Asset({ session: newsession });
+          section.theme_id = publishedTheme.id;
+          section.key = "sections/hello.liquid";
+          section.value = liq;
+          const redult = await section.save({});
+
+          console.log("this si resulto  " + redult);
+
+          const match = asst[0].value.match(
+            /\{\%\s+schema\s+\%\}([\s\S]*?)\{\%\s+endschema\s+\%\}/m
+          );
+          const schema = JSON.parse(match[1]);
+
+          if (schema && schema.blocks) {
+            acceptsAppBlock = schema.blocks.some((b) => b.type === "@app");
+          }
+
+          return acceptsAppBlock ? file : null;
+        })
+      )
+    ).filter((value) => value);
+
+    // console.log("this is withAppBlock  " + sectionsWithAppBlock)
+    console.log(
+      "this is  json asset contents  " + templateJSONAssetContents.length
+    );
+
+    res.status(200).send(themes);
   });
 
   app.use((req, res, next) => {

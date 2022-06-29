@@ -1,171 +1,292 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import fetchIntercept from 'fetch-intercept';
 import { Page, Tag } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { Toast, useAppBridge } from "@shopify/app-bridge-react";
+import { getSessionToken } from "@shopify/app-bridge-utils";
 import { userLoggedInFetch } from "../App";
+import "../style.css";
+import Sortlist from "./Sortlist";
+import Productlist from "./Productlist";
+import Modal from "./Modal";
+import SaveModal from "./SaveModal";
+import Welcome from "./Welcome";
+import Newsortlist from "./Newsortlist"
+import Enabler from "./Enabler";
+import { metafiledAPICalls } from "../helpers/index.js"
 
 export function Campaign() {
   const [productList, updateproductList] = useState([]);
+  const [currentproductList, updatecurrentproductList] = useState([]);
   const [isPickerOpen, setPickerOpen] = useState(false);
-  const [newTitles, setNewTitles] = useState(["type"]);
+  const [newTitles, setNewTitles] = useState(["title"]);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [isSaveModalOpen, setSaveModalOpen] = useState(false);
+  const [customMsg, setCustomMsg] = useState("");
 
   const app = useAppBridge();
   const fetch = userLoggedInFetch(app);
 
+
   useEffect(async () => {
     const resp = await fetch("/get-products").then((res) => res.json());
+    const secondresp = await fetch("/api/store/themes/main").then((res) => res.json());
+    // console.log(secondresp[0])
+    // const thirdresp = await fetch("/scripttag");
     const products = resp.products;
+  
     updateproductList(products);
   }, []);
 
-  const onSelection = async ({ selection = [] }) => {
-    /**
-     * `selection` is always an array.
-     * We have `selectMultiple: false`, so we know we can just grab
-     * the item at index 0, since there is only 1 item.
-     *
-     */
-    
-   // console.log("this is selection  " + JSON.stringify(selection));
+  const setIsPickerOpen = (val) => {
+   
+    setPickerOpen(val);
+  };
 
-   let val = document.querySelectorAll(".product-title")
-   let i = 0;
+  const passModalToChild = () => {
+    setModalOpen(false);
+    setSaveModalOpen(false);
+    console.log("passModal")
+  };
 
-   console.log(val)
+  const passMsgToChild = (msg) => {
+    setCustomMsg(msg);
+    console.log("this is custommsg from campaign  " + customMsg);
+  };
 
-  /*
-    for (const element of selection) {
-     const newObj = {
-       newTitle : val[i].innerText
-     }
-     i++
-     const res = Object.assign(element,newObj)
-     console.log(res)
+  function updateTitlesFromChild(newValue) {
+    setNewTitles(newValue);
   }
 
-  */
+  function updateProductsFromChild(newProducts) {
+   
+    updateproductList(newProducts);
+  }
+
+  function updatecurrentProductsFromChild(newProducts) {
+    
+    updatecurrentproductList(newProducts);
+  }
+
+  const removeTag = (typeOfTag) => {
+    let arr = newTitles;
+   
+    let newActiveTags = arr.filter((type) => type.includes(typeOfTag) === false);
+ 
+    setNewTitles(newActiveTags);
+  };
+
+  const setModalHack = () => {
+    
+    setModalOpen(true);
+    addTag("message");
+    return <Tag onRemove={() => removeTag("message")}>Custom message</Tag>;
+  };
+
+  const toggleActive = useCallback(() => setSaveModalOpen((isSaveModalOpen) => !isSaveModalOpen), []);
+
+  const toastMarkup = isSaveModalOpen ? (
+    <Toast content="Save succsesful" onDismiss={toggleActive} />
+  ) : null;
+
+  function getOccurrence(array, value) {
+    var count = 0;
+    array.forEach((v) => v.includes(value) && count++);
+    return count;
+  }
+
+  const addTag = (addTag) => {
+    let currentTags = [...newTitles];
+    let val = getOccurrence(currentTags, addTag);
+    
+    let result = addTag.concat(val);
+
+    currentTags.push(result);
+
+    setNewTitles(currentTags);
+  };
+  const homeAPICalls = async () => {
+    
+    let val = document.querySelectorAll(".product-title");
+    let i = 0;
+    let obj = [];
+    let newObj = {};
+
+    toggleActive()
+    
+    for (const element of productList) {
+        
+      if (val.length != 0 && val[i] != undefined) {
+        newObj = {
+          newTitle: val[i].innerText,
+          message: customMsg,
+        };
+      } else {
+        newObj = {
+          newTitle: "",
+          message:"",
+        };
+      }
+      console.log("this is val i inner text  " +  val[i].innerText)
+      i++;
+      const res = Object.assign(element, newObj);
+      obj.push(res);
+      
+    }
+
 
     
-
-    const sendValues = productList;
-
-    updateproductList(selection);
-
-    setPickerOpen(false);
-
     const res = await fetch("/deletemeta", {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(sendValues),
+      body: JSON.stringify(currentproductList),
     });
 
-    const response = await fetch("/mongo", {
+    const response = await fetch("/createmeta", {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(selection),
+      body: JSON.stringify(productList),
     });
- 
-    
 
+    console.log("homeAPIcalls finished")
+  
   };
-
-  const setIsPickerOpen = () => {
-    setPickerOpen(true);
-  };
-
-  const onCancel = () => {
-    setPickerOpen(false);
-    console.log("onCancel")
-  }
-
-  const removeTag = (typeOfTag) => {
-    let arr = newTitles;
-
-    let newActiveTags = arr.filter((type) => type !== typeOfTag);
-
-    setNewTitles(newActiveTags);
-  };
-
-  const addTag = (addTag) => {
-    let currentTags = [...newTitles];
-    
-    currentTags.push(addTag);
-
-    setNewTitles(currentTags);
-  };
-
-  const chooseType = (type, product) => {
-    if (type == "vendor") {
-      return <>{product.vendor}</>;
-    }
-    if (type == "type") {
-      return <>{product.productType}</>;
-    }
-    if (type == "tags") {
-      return product.tags.map((tag) => {
-        if (tag.includes("app_") == true) {
-          tag = tag.split("app_");
-          return tag;
-        }
-      });
-    }
-  };
-
+  
   const renderActiveTag = (tag) => {
-    console.log("renderaC");
-    if (tag == "vendor") {
-      return <Tag onRemove={() => removeTag("vendor")}>Product Vendo</Tag>;
+    if (tag.includes("title")) {
+      return (
+        <div className="Tags-button">
+          Product Title
+          <span className = "svg--container" onClick={() => removeTag(tag)}>
+          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
+  <path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
+</svg>
+
+          </span>
+        </div>
+      );
     }
-    if (tag == "type") {
-      return <Tag onRemove={() => removeTag("type")}>Product Type</Tag>;
+    if (tag.includes("vendor")) {
+      return (
+        <div className="Tags-button">
+          Product Vendor
+          <span className = "svg--container" onClick={() => removeTag(tag)}>
+          <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
+  <path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
+</svg>
+          </span>
+        </div>
+      );
     }
-    if (tag == "tags") {
-      return <Tag onRemove={() => removeTag("tags")}>Product Tag</Tag>;
+    if (tag.includes("type")) {
+      return  <div className="Tags-button">
+      Product Type
+      <span className = "svg--container" onClick={() => removeTag(tag)}>
+      <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
+<path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
+</svg>
+      </span>
+    </div>
+    }
+    if (tag.includes("tags")) {
+      return  <div className="Tags-button">
+      Product Tags
+      <span className = "svg--container" onClick={() => removeTag(tag)}>
+      <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
+<path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
+</svg>
+      </span>
+    </div>
+    }
+    if (tag.includes("variant")) {
+      return  <div className="Tags-button">
+      Product Variant
+      <span className = "svg--container" onClick={() => removeTag(tag)}>
+      <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
+<path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
+</svg>
+      </span>
+    </div>
+    }
+    if (tag.includes("message")) {
+      return  <div className="Tags-button">
+      Custom Message
+      <span className = "svg--container" onClick={() => removeTag(tag)}>
+      <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" fill="none" viewBox="0 0 18 17">
+<path d="M.865 15.978a.5.5 0 00.707.707l7.433-7.431 7.579 7.282a.501.501 0 00.846-.37.5.5 0 00-.153-.351L9.712 8.546l7.417-7.416a.5.5 0 10-.707-.708L8.991 7.853 1.413.573a.5.5 0 10-.693.72l7.563 7.268-7.418 7.417z" fill="currentColor"></path>
+</svg>
+      </span>
+    </div>
     }
   };
 
   return (
-    <Page
-      title="Build your Product title"
-      primaryAction={{
-        content: "Choose products",
-        onAction: () => setIsPickerOpen(),
-      }}
+    <Page 
+    title="Hello Joe joe.everett34@gmail.com"
+    
+    primaryAction = {
+      {
+      content: "Save",
+      onAction: () => homeAPICalls()
+      }
+    }
     >
+      <section style = {{padding:"20px 0px"}}>
+      <Welcome />
+      </section>
+      <section style = {{padding:"20px 0px"}}>
+      <Enabler />
+      </section>
       <div className="tags">
-        <Tag onClick={() => addTag("vendor")}>Product Vendor</Tag>
-        <Tag onClick={() => addTag("type")}>Product Type</Tag>
-        <Tag onClick={() => addTag("tags")}>Product Tag</Tag>
+      <button className="Tags-button" onClick={() => addTag("title")}>
+          Product Title
+        </button>
+        <button className="Tags-button" onClick={() => addTag("vendor")}>
+          Product Vendor
+        </button>
+        <button className="Tags-button" onClick={() => addTag("type")}>
+          Product Type
+        </button>
+        <button className="Tags-button" onClick={() => addTag("tags")}>
+          Product Tag
+        </button>
+        <button className="Tags-button" onClick={() => addTag("variant")}>
+          Product Variant
+        </button>
+        <button className="Tags-button" onClick={() => setModalHack()}>
+          Custom Message
+        </button>
       </div>
-
-      <div className="active-tags">
-        {newTitles.map((activetag) => renderActiveTag(activetag))}
-      </div>
-
-      <ResourcePicker
-        resourceType="Product"
-        showVariants={false}
-        selectMultiple={true}
-        open={isPickerOpen}
-        onSelection={onSelection}
-        onCancel={onCancel}
-        actionVerb="select"
+      <Modal
+        open={isModalOpen}
+        closeModal={passModalToChild}
+        setMsg={passMsgToChild}
       />
-      {productList.map((product, i) => (
-        <div className="product-container" key={i}>
-          <img src={product?.images[0].originalSrc} />
-          <p className="product-vendor">{product.vendor}</p>
-          <p className = "product-title">{newTitles &&
-            newTitles.map((type) => <>{chooseType(type, product)}</>)}</p>
-          <p>£ {product.variants[0].price}</p>
-        </div>
-      ))}
+     
+
+      <Sortlist
+        titles={newTitles}
+        updateTitles={updateTitlesFromChild}
+        renderActiveTag={renderActiveTag}
+        removeTag={removeTag}
+      />
+      <Productlist
+        products={productList}
+        
+        titles={newTitles}
+        updateProducts={updateProductsFromChild}
+        updatecurrentProducts = {updatecurrentProductsFromChild}
+        setPicker={setIsPickerOpen}
+        pickerStatus={isPickerOpen}
+        custommsg={customMsg}
+      />
+     {toastMarkup}
     </Page>
   );
 }
