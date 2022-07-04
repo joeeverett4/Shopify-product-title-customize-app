@@ -86,7 +86,7 @@ export async function createServer(
     const shop = await Shop.findOne({
       shopify_domain: shopOrigin,
     });
-    console.log(typeof shop)
+    console.log("this is shop " +  shop)
     res.status(200).send(shop);
   });
 

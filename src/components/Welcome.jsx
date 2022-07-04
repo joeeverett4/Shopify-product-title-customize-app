@@ -37,6 +37,7 @@ function Welcome() {
                   elements
                 </h4>
                 <div className="Tags-row">
+                  <div style = {{display:"flex"}}>
                   <div className="Tags-button">
                     Product Vendor
                     <span className="svg--container">
@@ -55,10 +56,14 @@ function Welcome() {
                         ></path>
                       </svg>
                     </span>
+                    
                   </div>
-                  <span>&#8644;</span>
-
+                  <span class = "arrow-vertical">&#8693;</span>
+                  <span class = "arrow-horizontal">&#8644;</span>
+               </div>
+               <div style = {{display:"flex"}}>
                   <div className="Tags-button">
+                 
                     Product Variant
                     <span className="svg--container">
                       <svg
@@ -76,8 +81,13 @@ function Welcome() {
                         ></path>
                       </svg>
                     </span>
+                  
+                   
+                    </div>
+                    <span class = "arrow-vertical">&#8693;</span>
+                  <span class = "arrow-horizontal">&#8644;</span>
                   </div>
-                  <span>&#8644;</span>
+                 
 
                   <div className="Tags-button">
                     Custom Message
